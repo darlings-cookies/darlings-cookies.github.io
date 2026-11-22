@@ -1,5 +1,7 @@
 # DARLINGS website
 
+To visit: https://darlings-cookies.github.io/
+
 A static website: plain HTML, CSS and JavaScript. There is no build step and
 no server code. Open `index.html` in a browser to see it, or host the folder
 as it is.
