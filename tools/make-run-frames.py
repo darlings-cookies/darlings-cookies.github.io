@@ -247,7 +247,7 @@ CHARACTERS = {
     "sunday-in-sicily": dict(body=sicily_body, sh_dx=33, sh_y=131, hip_dx=14, hip_y=174, ground=215, lift=22, reach=0.8,
                              arm="#F3EBD0", arm_w=11, leg="#A98B5B", leg_w=12, hand="#B7A650", hand_r=8,
                              shoe="#6B4A2B", sole="#4A3220", hold={1: cup}),
-    "chip-champ": dict(COOKIE, body=champ_body, arm="#C98F4A", arm_w=14, leg="#C98F4A", leg_w=11, hand="#C98F4A", hand_r=11,
+    "chunky-monkey": dict(COOKIE, body=champ_body, arm="#C98F4A", arm_w=14, leg="#C98F4A", leg_w=11, hand="#C98F4A", hand_r=11,
                        shoe="#9A6532", sole="#F4EBDD", sneaker=True),
 }
 
