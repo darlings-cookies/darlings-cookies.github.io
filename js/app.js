@@ -350,7 +350,7 @@
     var bubble = $("warenkorb-anzahl");
     var first = bubble.getBoundingClientRect();
     var distance = Math.hypot(first.left + first.width / 2 - x0, first.top + first.height / 2 - y0);
-    var TURN = turns.length ? 620 : 420;
+    var TURN = turns.length ? 340 : 420;         // a brisk turn, so it flows straight into the run
     var RUN = Math.min(1500, Math.max(700, distance * 1.5));
     var JUMP = 700;
     var cycles = Math.max(2, Math.round(RUN / 280));   // one cycle = a left and a right step
@@ -375,10 +375,10 @@
         s = 1;
         flip = Math.cos(p * Math.PI);
         if (turns.length) {                     // the picture narrows, then the turn-around pictures take over
-          if (p < 0.4) {
-            flip = 1 - 0.7 * (p / 0.4);
+          if (p < 0.3) {
+            flip = 1 - 0.7 * (p / 0.3);
           } else {
-            show(turns[Math.min(turns.length - 1, Math.floor((p - 0.4) / 0.6 * turns.length))]);
+            show(turns[Math.min(turns.length - 1, Math.floor((p - 0.3) / 0.7 * turns.length))]);
             flip = 1;
           }
         } else if (frames.length && p >= 0.5) { // edge-on at half time: swap to the back view
