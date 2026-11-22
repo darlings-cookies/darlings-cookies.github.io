@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Draws the running pictures in images/run/.
+"""Draws the turn-around and running pictures in images/run/.
 
-Each cookie gets six small drawings that show it from behind, in the
-middle of a running step. Played one after the other they look like
-running. The page uses them when a cookie runs into the cart.
+Every cookie gets
+  <id>-turn-1.svg ... -turn-3.svg   turning away: side-on, half turned, back
+  <id>-1.svg ... -6.svg             seen from behind, in the middle of a running step
+Played one after the other they look like turning round and running.
+The page uses them when a cookie runs into the cart.
 
 Run it from the main folder:   python3 tools/make-run-frames.py
 (It only needs Python, nothing else.)
@@ -12,6 +14,7 @@ import math
 import os
 
 FRAMES = 6
+TURN_SQUASH = [0.3, 0.66, 1.0]   # how narrow the cookie is drawn while it turns
 LINE = "#3A1D12"          # outline colour of the drawings
 VIEW = "0 0 200 230"
 
@@ -44,6 +47,8 @@ def leg(side, lift, c):
     out = limb((hx, hy), knee, (fx, fy - 6), c["leg"], c["leg_w"])
     if lift < 0.3:      # heel, seen from behind
         out += '<rect x="%.1f" y="%.1f" width="27" height="17" rx="8" fill="%s" stroke="%s" stroke-width="4"/>' % (fx - 13.5, fy - 10, c["shoe"], LINE)
+        if c.get("heels"):
+            out += '<path d="M%.1f %.1f v9" stroke="%s" stroke-width="4.5" stroke-linecap="round"/>' % (fx, fy + 7, LINE)
         if c.get("sneaker"):
             out += '<path d="M%.1f %.1f h19" stroke="%s" stroke-width="3.5" stroke-linecap="round"/>' % (fx - 9.5, fy + 3.5, c["sole"])
     else:               # the sole shows when the foot kicks up
@@ -156,6 +161,75 @@ def noir_body():
     return out
 
 
+def sweetheart_body():
+    d = lumpy(100, 96, 62, 5.0)
+    out = '<path d="%s" fill="#D8A040" stroke="%s" stroke-width="5"/>' % (d, LINE)
+    out += '<ellipse cx="88" cy="72" rx="34" ry="23" fill="#E6B659" opacity="0.6"/>'
+    out += '<path d="M58 62 q18 -16 38 -6 q12 6 24 -3" fill="none" stroke="#C4772A" stroke-width="8" stroke-linecap="round"/>'
+    out += '<path d="M140 92 q10 14 0 28 q-8 10 -2 20" fill="none" stroke="#C4772A" stroke-width="7" stroke-linecap="round"/>'
+    out += '<path d="M56 112 q8 12 4 24" fill="none" stroke="#C4772A" stroke-width="6" stroke-linecap="round"/>'
+    for x, y, rot in [(80, 88, 20), (112, 76, -15), (98, 118, 40), (124, 132, 10), (74, 130, -30), (118, 104, 60), (90, 48, 0), (130, 64, 35)]:
+        out += '<rect x="%d" y="%d" width="6" height="5" rx="1" transform="rotate(%d %d %d)" fill="#FFF4D6"/>' % (x - 3, y - 2, rot, x, y)
+    return out
+
+
+def churro_body():
+    out = '<g transform="translate(58 41) rotate(-28)">'
+    out += '<path d="M0 0 L-19 -12 Q-24 0 -19 12 Z M0 0 L19 -12 Q24 0 19 12 Z" fill="#D9453A" stroke="%s" stroke-width="4" stroke-linejoin="round"/>' % LINE
+    out += '<circle r="5.5" fill="#E85B4C" stroke="%s" stroke-width="3.5"/></g>' % LINE
+    out += '<path d="%s" fill="#DDAA48" stroke="%s" stroke-width="5"/>' % (lumpy(100, 96, 62, 0.9, n=22, amp=4.0), LINE)
+    out += '<path d="%s" fill="#D0983A"/>' % lumpy(100, 96, 47, 2.0, n=14, amp=3.0)
+    for i in range(46):                      # cinnamon sugar
+        ang = i * 2.399963
+        rad = 60 * math.sqrt((i + 0.5) / 46.0)
+        out += '<circle cx="%.1f" cy="%.1f" r="%.1f" fill="#FFF1C2"/>' % (100 + rad * math.cos(ang), 96 + rad * math.sin(ang) * 0.97, 1.3 + (i % 3) * 0.4)
+    return out
+
+
+def cinnamon(x, y):
+    return ('<path d="M%.1f %.1f L%.1f %.1f" stroke="%s" stroke-width="12" stroke-linecap="round"/>'
+            '<path d="M%.1f %.1f L%.1f %.1f" stroke="#A8672E" stroke-width="6.5" stroke-linecap="round"/>') % (
+        x + 6, y + 18, x - 8, y - 30, LINE, x + 6, y + 18, x - 8, y - 30)
+
+
+def sicily_body():
+    # trousers, then the shirt over them
+    out = '<path d="M66 158 Q100 166 134 158 L132 178 Q100 184 68 178 Z" fill="#A98B5B" stroke="%s" stroke-width="5" stroke-linejoin="round"/>' % LINE
+    out += '<path d="M68 123 Q100 115 132 123 L137 162 Q100 170 63 162 Z" fill="#F3EBD0" stroke="%s" stroke-width="5" stroke-linejoin="round"/>' % LINE
+    out += '<path d="M74 136 Q100 144 126 136 M100 141 V165" fill="none" stroke="#CFC39C" stroke-width="2.5" stroke-linecap="round"/>'
+    # sunglasses pushed up: just their tops show above the head
+    out += '<rect x="68" y="17" width="29" height="18" rx="7" fill="#3B2A22" stroke="%s" stroke-width="4"/>' % LINE
+    out += '<rect x="103" y="17" width="29" height="18" rx="7" fill="#3B2A22" stroke="%s" stroke-width="4"/>' % LINE
+    out += '<path d="%s" fill="#9CAD4A" stroke="%s" stroke-width="5"/>' % (lumpy(100, 76, 50, 1.4, n=18, amp=2.4), LINE)
+    out += '<ellipse cx="112" cy="58" rx="27" ry="18" fill="#ABBB5A" opacity="0.6"/>'
+    for x, y, rot in [(74, 62, -35), (118, 52, 25), (130, 88, 70), (96, 86, -10), (72, 98, 40), (108, 110, -25)]:
+        out += '<ellipse cx="%d" cy="%d" rx="9" ry="5" transform="rotate(%d %d %d)" fill="#DCCB80" stroke="%s" stroke-width="2.5"/>' % (x, y, rot, x, y, LINE)
+    for x, y in [(88, 70), (120, 72), (84, 110), (128, 104), (100, 44)]:
+        out += '<circle cx="%d" cy="%d" r="2" fill="#7E8E36"/>' % (x, y)
+    out += '<path d="M82 122 Q100 132 118 122" fill="none" stroke="%s" stroke-width="4" stroke-linecap="round"/>' % LINE
+    return out
+
+
+def cup(x, y):
+    return '<rect x="%.1f" y="%.1f" width="15" height="12" rx="3.5" fill="#FFFFFF" stroke="%s" stroke-width="3.5"/>' % (x - 2, y - 16, LINE)
+
+
+def champ_body():
+    d = lumpy(100, 96, 62, 4.2, amp=3.4)
+    out = '<clipPath id="ball"><path d="%s"/></clipPath>' % d
+    out += '<path d="%s" fill="#C98F4A"/>' % d
+    out += '<ellipse cx="114" cy="100" rx="32" ry="22" fill="#D6A05C" opacity="0.55"/>'
+    for x, y, r, rot in [(72, 96, 8, -20), (118, 90, 7, 35), (140, 112, 8, 60), (96, 124, 9, -30), (126, 138, 7, 15), (64, 122, 7, 70), (98, 148, 6, 0)]:
+        out += chip(x, y, r, rot)
+    out += '<g clip-path="url(#ball)">'
+    out += '<path d="M30 54 Q100 36 170 54 V78 Q100 60 30 78 Z" fill="#F4EBDD" stroke="%s" stroke-width="4"/>' % LINE
+    out += '<path d="M30 61 Q100 43 170 61" fill="none" stroke="#D9503A" stroke-width="5"/>'
+    out += '<path d="M30 70 Q100 52 170 70" fill="none" stroke="#5FA3BF" stroke-width="5"/>'
+    out += '</g>'
+    out += '<path d="%s" fill="none" stroke="%s" stroke-width="5"/>' % (d, LINE)
+    return out
+
+
 COOKIE = {"sh_dx": 54, "sh_y": 104, "hip_dx": 20, "hip_y": 150, "ground": 214, "lift": 35, "arm_w": 9, "leg_w": 9}
 
 CHARACTERS = {
@@ -167,6 +241,14 @@ CHARACTERS = {
                         shoe="#D6402F", sole="#F4EBDD", sneaker=True, hold={-1: brush}),
     "choc-noir": dict(COOKIE, body=noir_body, sh_dx=51, arm="#2A2425", leg="#2A2425", arm_w=8, leg_w=8, hand="#2A2425", hand_r=10,
                       shoe="#C8392D", sole="#F4EBDD", sneaker=True),
+    "the-sweetheart": dict(COOKIE, body=sweetheart_body, arm="#D8A040", leg="#D8A040", hand="#D8A040", shoe="#D8A040", sole="#BF8530"),
+    "charming-churro": dict(COOKIE, body=churro_body, ground=206, lift=30, arm="#D7A443", leg="#D7A443", leg_w=8, hand="#E3B659",
+                            shoe="#A8752F", sole="#7A5220", heels=True, hold={-1: cinnamon}),
+    "sunday-in-sicily": dict(body=sicily_body, sh_dx=33, sh_y=131, hip_dx=14, hip_y=174, ground=215, lift=22, reach=0.8,
+                             arm="#F3EBD0", arm_w=11, leg="#A98B5B", leg_w=12, hand="#B7A650", hand_r=8,
+                             shoe="#6B4A2B", sole="#4A3220", hold={1: cup}),
+    "chip-champ": dict(COOKIE, body=champ_body, arm="#C98F4A", arm_w=14, leg="#C98F4A", leg_w=11, hand="#C98F4A", hand_r=11,
+                       shoe="#9A6532", sole="#F4EBDD", sneaker=True),
 }
 
 
@@ -178,6 +260,21 @@ def frame(c, i):
     return inner
 
 
+def standing(c):
+    """Back view, both feet on the ground, arms hanging: the end of the turn."""
+    return arm(-1, -0.55, c) + arm(1, -0.55, c) + leg(-1, 0, c) + leg(1, 0, c) + c["body"]()
+
+
+def turning(c, squash):
+    """The standing back view drawn narrower, as if seen half from the side."""
+    if squash >= 1:
+        return standing(c)
+    rim = ('<filter id="rim" x="-30%%" y="-10%%" width="160%%" height="120%%"><feMorphology in="SourceAlpha" operator="dilate" radius="1.6" result="fat"/>'
+           '<feFlood flood-color="%s"/><feComposite in2="fat" operator="in" result="edge"/>'
+           '<feMerge><feMergeNode in="edge"/><feMergeNode in="SourceGraphic"/></feMerge></filter>') % LINE
+    return '%s<g filter="url(#rim)"><g transform="translate(100 0) scale(%.2f 1) translate(-100 0)">%s</g></g>' % (rim, squash, standing(c))
+
+
 def main():
     here = os.path.dirname(os.path.abspath(__file__))
     out_dir = os.path.join(here, "..", "images", "run")
@@ -187,7 +284,11 @@ def main():
             svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="%s">%s</svg>\n' % (VIEW, frame(c, i))
             with open(os.path.join(out_dir, "%s-%d.svg" % (name, i + 1)), "w") as f:
                 f.write(svg)
-    print("Wrote %d pictures to images/run/" % (len(CHARACTERS) * FRAMES))
+        for i, squash in enumerate(TURN_SQUASH):
+            svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="%s">%s</svg>\n' % (VIEW, turning(c, squash))
+            with open(os.path.join(out_dir, "%s-turn-%d.svg" % (name, i + 1)), "w") as f:
+                f.write(svg)
+    print("Wrote %d pictures to images/run/" % (len(CHARACTERS) * (FRAMES + len(TURN_SQUASH))))
 
 
 if __name__ == "__main__":

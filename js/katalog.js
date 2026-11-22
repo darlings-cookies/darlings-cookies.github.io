@@ -61,11 +61,13 @@ window.DARLINGS_SHOP = {
    accent       the character's sticker colour
    ingredients  leave null until confirmed; shown on the card once set
    allergens    leave null until confirmed; shown on the card once set
+   turnFrames   number of turn-around pictures and
    runFrames    number of running pictures for the "run into the cart"
                 animation. They live in images/run/ and are called
-                <id>-1.svg, <id>-2.svg and so on. Leave it out (or null)
-                for a character without running pictures: its normal
-                picture then runs instead.
+                <id>-turn-1.svg, <id>-turn-2.svg ... (turning away) and
+                <id>-1.svg, <id>-2.svg ... (running, seen from behind).
+                Leave both out (or null) for a character without these
+                pictures: its normal picture then runs instead.
    --------------------------------------------------------------------- */
 window.DARLINGS_CATALOGUE = [
   {
@@ -79,6 +81,7 @@ window.DARLINGS_CATALOGUE = [
     price: null,
     available: true,
     accent: "#F2B632",
+    turnFrames: 3,
     runFrames: 6,
     ingredients: null,
     allergens: null
@@ -94,6 +97,7 @@ window.DARLINGS_CATALOGUE = [
     price: null,
     available: true,
     accent: "#7FB3D3",
+    turnFrames: 3,
     runFrames: 6,
     ingredients: null,
     allergens: null
@@ -109,6 +113,7 @@ window.DARLINGS_CATALOGUE = [
     price: null,
     available: true,
     accent: "#EE5C8F",
+    turnFrames: 3,
     runFrames: 6,
     ingredients: null,
     allergens: null
@@ -124,6 +129,7 @@ window.DARLINGS_CATALOGUE = [
     price: null,
     available: true,
     accent: "#C8392D",
+    turnFrames: 3,
     runFrames: 6,
     ingredients: null,
     allergens: null
@@ -139,6 +145,8 @@ window.DARLINGS_CATALOGUE = [
     price: null,
     available: true,
     accent: "#F29CA3",
+    turnFrames: 3,
+    runFrames: 6,
     ingredients: null,
     allergens: null
   },
@@ -146,13 +154,15 @@ window.DARLINGS_CATALOGUE = [
     id: "charming-churro",
     name: "The Charming Churro",
     image: "images/charming-churro.webp",
-    imageAlt: "The Charming Churro: ein Cookie im Zimtzucker-Mantel mit roter Schleife, der eine Kusshand wirft und eine Zimtstange im Arm hält.",
+    imageAlt: "The Charming Churro: ein Cookie im Zimtzucker-Mantel mit roter Schleife und Stöckelschuhen, der eine Kusshand wirft und eine Zimtstange im Arm hält.",
     description: "Sie betritt keinen Raum, sie hat einen Auftritt. Schleife gerichtet, Zimtstange im Arm, Kusshand in die Runde: «Bitte, bitte, nicht alle auf einmal.» Wo sie war, glitzert es noch tagelang. Das ist kein Staub. Das ist Zimtzucker.",
     draft: true,
     variety: "Churro (Zimt & Zucker)",
     price: null,
     available: true,
     accent: "#C97B3A",
+    turnFrames: 3,
+    runFrames: 6,
     ingredients: null,
     allergens: null
   },
@@ -167,6 +177,8 @@ window.DARLINGS_CATALOGUE = [
     price: null,
     available: true,
     accent: "#9DBB5B",
+    turnFrames: 3,
+    runFrames: 6,
     ingredients: null,
     allergens: null
   },
@@ -181,6 +193,8 @@ window.DARLINGS_CATALOGUE = [
     price: null,
     available: true,
     accent: "#E2643C",
+    turnFrames: 3,
+    runFrames: 6,
     ingredients: null,
     allergens: null
   }

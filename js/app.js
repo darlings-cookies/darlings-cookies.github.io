@@ -153,7 +153,7 @@
   function renderPile() {
     var pile = $("stapel");
     pile.textContent = "";
-    CATALOGUE.slice(0, 4).forEach(function (cookie, i) {
+    CATALOGUE.slice(0, 8).forEach(function (cookie, i) {
       pile.appendChild(el("a", {
         class: "pile__sticker",
         href: "#cookie-" + cookie.id,
@@ -283,21 +283,26 @@
     }
   }
 
-  /* Running pictures (the cookie seen from behind), loaded ahead of time so
-     the run never has to wait for them. { cookieId: { imgs: [...], ready } } */
+  /* Turn-around and running pictures (the cookie seen from behind), loaded
+     ahead of time so the run never has to wait for them.
+     { cookieId: { turn: [...], run: [...], ready } } */
   var runSets = {};
   function loadRunFrames() {
     CATALOGUE.forEach(function (cookie) {
-      var n = Number(cookie.runFrames);
-      if (!Number.isInteger(n) || n < 2) return;
-      var set = { imgs: [], ready: false };
+      var runs = Number(cookie.runFrames);
+      var turns = Number(cookie.turnFrames);
+      if (!Number.isInteger(runs) || runs < 2) return;
+      if (!Number.isInteger(turns) || turns < 0) turns = 0;
+      var set = { turn: [], run: [], ready: false };
       var loaded = 0;
-      for (var i = 1; i <= n; i++) {
+      function add(list, name) {
         var pic = new Image();
-        pic.onload = function () { if (++loaded === n) set.ready = true; };
-        pic.src = "images/run/" + cookie.id + "-" + i + ".svg";
-        set.imgs.push(pic);
+        pic.onload = function () { if (++loaded === runs + turns) set.ready = true; };
+        pic.src = "images/run/" + cookie.id + "-" + name + ".svg";
+        list.push(pic);
       }
+      for (var t = 1; t <= turns; t++) add(set.turn, "turn-" + t);
+      for (var r = 1; r <= runs; r++) add(set.run, r);
       runSets[cookie.id] = set;
     });
   }
@@ -321,28 +326,31 @@
 
     // the back view: one picture per running position, shown one at a time
     var set = runSets[cookie.id];
+    var turns = [];
     var frames = [];
-    if (set && set.ready) {
-      set.imgs.forEach(function (pic) {
-        var f = el("img", { src: pic.src, alt: "" });
-        f.style.visibility = "hidden";
-        runner.appendChild(f);
-        frames.push(f);
-      });
+    function stack(pic) {
+      var f = el("img", { src: pic.src, alt: "" });
+      f.style.visibility = "hidden";
+      runner.appendChild(f);
+      return f;
     }
-    var showing = -1;                           // -1 = the normal picture
-    function show(index) {
-      if (index === showing) return;
-      (showing < 0 ? front : frames[showing]).style.visibility = "hidden";
-      (index < 0 ? front : frames[index]).style.visibility = "visible";
-      showing = index;
+    if (set && set.ready) {
+      turns = set.turn.map(stack);
+      frames = set.run.map(stack);
+    }
+    var showing = front;
+    function show(pic) {
+      if (pic === showing) return;
+      showing.style.visibility = "hidden";
+      pic.style.visibility = "visible";
+      showing = pic;
     }
     document.body.appendChild(runner);
 
     var bubble = $("warenkorb-anzahl");
     var first = bubble.getBoundingClientRect();
     var distance = Math.hypot(first.left + first.width / 2 - x0, first.top + first.height / 2 - y0);
-    var TURN = 420;
+    var TURN = turns.length ? 620 : 420;
     var RUN = Math.min(1500, Math.max(700, distance * 1.5));
     var JUMP = 700;
     var cycles = Math.max(2, Math.round(RUN / 280));   // one cycle = a left and a right step
@@ -366,8 +374,16 @@
         y = y0 - Math.sin(p * Math.PI) * 18;
         s = 1;
         flip = Math.cos(p * Math.PI);
-        if (frames.length) {                    // edge-on at half time: swap to the back view
-          if (p >= 0.5) { show(0); flip = -flip; }
+        if (turns.length) {                     // the picture narrows, then the turn-around pictures take over
+          if (p < 0.4) {
+            flip = 1 - 0.7 * (p / 0.4);
+          } else {
+            show(turns[Math.min(turns.length - 1, Math.floor((p - 0.4) / 0.6 * turns.length))]);
+            flip = 1;
+          }
+        } else if (frames.length && p >= 0.5) { // edge-on at half time: swap to the back view
+          show(frames[0]);
+          flip = -flip;
         }
       } else if (t < TURN + RUN) {              // 2. run off into the distance
         p = (t - TURN) / RUN;
@@ -378,7 +394,7 @@
         x = lerp(x0, lx, e);
         y = lerp(y0, ly, e) - Math.abs(stride) * 0.07 * h * s;
         if (frames.length) {
-          show(Math.floor(phase * frames.length) % frames.length);
+          show(frames[Math.floor(phase * frames.length) % frames.length]);
           rot = stride * 4;
           flip = 1;
         } else {                                // no running pictures: the normal picture waddles
