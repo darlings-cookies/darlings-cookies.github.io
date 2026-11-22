@@ -148,21 +148,6 @@
     saveCart();
   }
 
-  /* ---------- hero sticker pile ---------- */
-
-  function renderPile() {
-    var pile = $("stapel");
-    pile.textContent = "";
-    CATALOGUE.slice(0, 8).forEach(function (cookie, i) {
-      pile.appendChild(el("a", {
-        class: "pile__sticker",
-        href: "#cookie-" + cookie.id,
-        "aria-label": cookie.name + " ansehen",
-        style: "--tilt:" + (TILTS[(i + 1) % TILTS.length] * 3.2).toFixed(1) + "deg"
-      }, [el("img", { src: cookie.image, alt: "", loading: "eager" })]));
-    });
-  }
-
   /* ---------- character cards ---------- */
 
   function renderCards() {
@@ -858,7 +843,6 @@
     document.documentElement.classList.toggle("is-test", TEST);
     renderUpdated();
     if (!calmMotion()) loadRunFrames();
-    renderPile();
     renderAll();
     bindEvents();
   }

@@ -24,7 +24,7 @@ Open `js/katalog.js`. Each character is one block:
 ```js
 {
   id: "golden-standard",
-  name: "The Golden Standard",
+  name: "Gold Standard",
   image: "images/golden-standard.webp",
   description: "…",
   draft: false,          // true shows a «Textentwurf» tag in test mode
