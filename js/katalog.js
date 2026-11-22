@@ -127,5 +127,61 @@ window.DARLINGS_CATALOGUE = [
     runFrames: 6,
     ingredients: null,
     allergens: null
+  },
+  {
+    id: "the-sweetheart",
+    name: "The Sweetheart",
+    image: "images/the-sweetheart.webp",
+    imageAlt: "The Sweetheart: ein goldener Cookie mit grossen, glänzenden Augen, Karamell und Salzflocken, der ein Herz fest an sich drückt.",
+    description: "Sein Herz drückt er fest an sich und verschenkt es trotzdem jeden Tag. Fällt jemandem das Znüni auf den Boden, teilt er seines und flüstert: «Nimm ruhig die grössere Hälfte.» Innen weich wie Karamell. Und obendrauf eine Prise Salz, damit es nicht zu kitschig wird.",
+    draft: true,
+    variety: "Salted Caramel",
+    price: null,
+    available: true,
+    accent: "#F29CA3",
+    ingredients: null,
+    allergens: null
+  },
+  {
+    id: "charming-churro",
+    name: "The Charming Churro",
+    image: "images/charming-churro.webp",
+    imageAlt: "The Charming Churro: ein Cookie im Zimtzucker-Mantel mit roter Schleife, der eine Kusshand wirft und eine Zimtstange im Arm hält.",
+    description: "Sie betritt keinen Raum, sie hat einen Auftritt. Schleife gerichtet, Zimtstange im Arm, Kusshand in die Runde: «Bitte, bitte, nicht alle auf einmal.» Wo sie war, glitzert es noch tagelang. Das ist kein Staub. Das ist Zimtzucker.",
+    draft: true,
+    variety: "Churro (Zimt & Zucker)",
+    price: null,
+    available: true,
+    accent: "#C97B3A",
+    ingredients: null,
+    allergens: null
+  },
+  {
+    id: "sunday-in-sicily",
+    name: "Sunday in Sicily",
+    image: "images/sunday-in-sicily.webp",
+    imageAlt: "Sunday in Sicily: ein grüner Pistazien-Cookie im weissen Hemd, die Sonnenbrille auf dem Kopf und eine Espressotasse in der Hand.",
+    description: "Er hat nie Stress, nur Termine mit der Sonne. Sonnenbrille auf dem Kopf, Espresso in der Hand, Blick aufs Meer: «Heute mache ich nichts. Und das mache ich gründlich.» Weich, nussig und bis oben voll mit Pistazien.",
+    draft: true,
+    variety: "Pistazie",
+    price: null,
+    available: true,
+    accent: "#9DBB5B",
+    ingredients: null,
+    allergens: null
+  },
+  {
+    id: "chip-champ",
+    name: "Chip Champ",
+    image: "images/chip-champ.webp",
+    imageAlt: "Chip Champ: ein muskulöser Chocolate-Chip-Cookie mit gestreiftem Stirnband und Schweissbändern, der lachend den Daumen hochhält.",
+    description: "Zwanzig Liegestütze vor dem Frühstück, und zwar mit einem Lachen. Schaffst du etwas nicht, steht er schon neben dir und ruft: «Komm, einer geht noch!» Seine Muskeln sind aus Schokolade. Sein Daumen zeigt immer nach oben.",
+    draft: true,
+    variety: "Chocolate Chunk",
+    price: null,
+    available: true,
+    accent: "#E2643C",
+    ingredients: null,
+    allergens: null
   }
 ];
