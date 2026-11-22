@@ -323,6 +323,7 @@ main:focus-visible, section:focus-visible, .card:focus-visible, h2:focus-visible
 .foot__inner { display: flex; flex-direction: column; gap: 2px; }
 .foot__name { font-size: 1.5rem; letter-spacing: 0.04em; }
 .foot__test { margin-top: 10px; font-size: 0.9rem; opacity: 0.85; }
+.foot__updated { margin-top: 10px; font-size: 0.9rem; opacity: 0.85; font-variant-numeric: tabular-nums; }
 
 /* ---------- cart drawer and order pop-up ---------- */
 
