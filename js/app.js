@@ -283,29 +283,70 @@
     }
   }
 
-  /* The cookie turns round, runs off into the distance towards the cart and
-     cannonballs into the counter. Returns false if there is no run (reduced
-     motion, picture not on screen): the counter then updates straight away. */
-  function sendCookieRunning(img) {
+  /* Running pictures (the cookie seen from behind), loaded ahead of time so
+     the run never has to wait for them. { cookieId: { imgs: [...], ready } } */
+  var runSets = {};
+  function loadRunFrames() {
+    CATALOGUE.forEach(function (cookie) {
+      var n = Number(cookie.runFrames);
+      if (!Number.isInteger(n) || n < 2) return;
+      var set = { imgs: [], ready: false };
+      var loaded = 0;
+      for (var i = 1; i <= n; i++) {
+        var pic = new Image();
+        pic.onload = function () { if (++loaded === n) set.ready = true; };
+        pic.src = "images/run/" + cookie.id + "-" + i + ".svg";
+        set.imgs.push(pic);
+      }
+      runSets[cookie.id] = set;
+    });
+  }
+
+  /* The cookie turns its back, runs off into the distance towards the cart
+     and cannonballs into the counter. Returns false if there is no run
+     (reduced motion, picture not on screen): the counter then updates
+     straight away. */
+  function sendCookieRunning(img, cookie) {
     if (!img || !img.naturalWidth || calmMotion() || document.hidden || !window.requestAnimationFrame) return false;
     var from = img.getBoundingClientRect();
     if (!from.width || !from.height || from.bottom < 0 || from.top > window.innerHeight) return false;
 
     var w = from.width, h = from.height;
     var x0 = from.left + w / 2, y0 = from.top + h / 2;
-    var runner = el("img", { class: "runner", src: img.currentSrc || img.src, alt: "", "aria-hidden": "true" });
+    var runner = el("div", { class: "runner", "aria-hidden": "true" });
     runner.style.width = w + "px";
     runner.style.height = h + "px";
+    var front = el("img", { src: img.currentSrc || img.src, alt: "" });
+    runner.appendChild(front);
+
+    // the back view: one picture per running position, shown one at a time
+    var set = runSets[cookie.id];
+    var frames = [];
+    if (set && set.ready) {
+      set.imgs.forEach(function (pic) {
+        var f = el("img", { src: pic.src, alt: "" });
+        f.style.visibility = "hidden";
+        runner.appendChild(f);
+        frames.push(f);
+      });
+    }
+    var showing = -1;                           // -1 = the normal picture
+    function show(index) {
+      if (index === showing) return;
+      (showing < 0 ? front : frames[showing]).style.visibility = "hidden";
+      (index < 0 ? front : frames[index]).style.visibility = "visible";
+      showing = index;
+    }
     document.body.appendChild(runner);
 
     var bubble = $("warenkorb-anzahl");
     var first = bubble.getBoundingClientRect();
     var distance = Math.hypot(first.left + first.width / 2 - x0, first.top + first.height / 2 - y0);
-    var TURN = 280;
-    var RUN = Math.min(950, Math.max(420, distance * 1.1));
-    var JUMP = 520;
-    var steps = Math.round(RUN / 105);          // little footsteps
-    var sRun = 46 / Math.max(w, h);             // far away = small
+    var TURN = 420;
+    var RUN = Math.min(1500, Math.max(700, distance * 1.5));
+    var JUMP = 700;
+    var cycles = Math.max(2, Math.round(RUN / 280));   // one cycle = a left and a right step
+    var sRun = 52 / Math.max(w, h);             // far away = small
     var sLand = 18 / Math.max(w, h);
     var t0 = null;
 
@@ -319,21 +360,31 @@
       var lx = cx - 46, ly = cy + 36;           // take-off spot just below the cart
       var x, y, s, flip, rot = 0, alpha = 1, p;
 
-      if (t < TURN) {                           // 1. hop and turn round
+      if (t < TURN) {                           // 1. hop and turn its back to us
         p = t / TURN;
         x = x0;
-        y = y0 - Math.sin(p * Math.PI) * 16;
+        y = y0 - Math.sin(p * Math.PI) * 18;
         s = 1;
         flip = Math.cos(p * Math.PI);
+        if (frames.length) {                    // edge-on at half time: swap to the back view
+          if (p >= 0.5) { show(0); flip = -flip; }
+        }
       } else if (t < TURN + RUN) {              // 2. run off into the distance
         p = (t - TURN) / RUN;
         var e = easeInOut(p);
-        var stride = Math.sin(p * steps * Math.PI);
+        var phase = p * cycles;
+        var stride = Math.sin(phase * 2 * Math.PI);
         s = lerp(1, sRun, e);
         x = lerp(x0, lx, e);
-        y = lerp(y0, ly, e) - Math.abs(stride) * 0.09 * h * s;
-        rot = stride * 12;
-        flip = -1;
+        y = lerp(y0, ly, e) - Math.abs(stride) * 0.07 * h * s;
+        if (frames.length) {
+          show(Math.floor(phase * frames.length) % frames.length);
+          rot = stride * 4;
+          flip = 1;
+        } else {                                // no running pictures: the normal picture waddles
+          rot = stride * 12;
+          flip = -1;
+        }
       } else if (t < TURN + RUN + JUMP) {       // 3. cannonball
         p = (t - TURN - RUN) / JUMP;
         var q = 1 - p;
@@ -341,7 +392,7 @@
         y = q * q * ly + 2 * q * p * (cy - 64) + p * p * cy;
         s = lerp(sRun, sLand, p * p);
         rot = -720 * p;
-        flip = -1;
+        flip = frames.length ? 1 : -1;
         if (p > 0.88) alpha = 1 - (p - 0.88) / 0.12;
       } else {                                  // splash: now the number ticks up
         runner.remove();
@@ -563,7 +614,7 @@
         var card = add.closest(".card");
         setQuantity(id, before + 1);
         // start the run before the cards are rebuilt, while the picture is still on the page
-        if ((cart[id] || 0) > before && card) sendCookieRunning(card.querySelector(".card__art img"));
+        if ((cart[id] || 0) > before && card) sendCookieRunning(card.querySelector(".card__art img"), cookie);
         renderAll('[data-add="' + id + '"]');
         announce(cookie.name + " liegt im Warenkorb. Jetzt " + cartCount() + " " + cookieWord(cartCount()) + ".");
         return;
@@ -664,6 +715,7 @@
     $("fuss-testhinweis").hidden = !TEST;
     document.documentElement.classList.toggle("is-test", TEST);
     renderUpdated();
+    if (!calmMotion()) loadRunFrames();
     renderPile();
     renderAll();
     bindEvents();

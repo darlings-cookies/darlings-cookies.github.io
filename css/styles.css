@@ -149,8 +149,11 @@ main:focus-visible, section:focus-visible, .card:focus-visible, h2:focus-visible
 /* a cookie on its way from its card into the cart (moved by js/app.js) */
 .runner {
   position: fixed; left: 0; top: 0; z-index: 40;
-  max-width: none; object-fit: contain;
   pointer-events: none; will-change: transform;
+}
+.runner img {
+  position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+  max-width: none; object-fit: contain;
 }
 .crumb {
   position: fixed; z-index: 40; width: 7px; height: 7px; border-radius: 50%;

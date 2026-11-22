@@ -61,6 +61,11 @@ window.DARLINGS_SHOP = {
    accent       the character's sticker colour
    ingredients  leave null until confirmed; shown on the card once set
    allergens    leave null until confirmed; shown on the card once set
+   runFrames    number of running pictures for the "run into the cart"
+                animation. They live in images/run/ and are called
+                <id>-1.svg, <id>-2.svg and so on. Leave it out (or null)
+                for a character without running pictures: its normal
+                picture then runs instead.
    --------------------------------------------------------------------- */
 window.DARLINGS_CATALOGUE = [
   {
@@ -74,6 +79,7 @@ window.DARLINGS_CATALOGUE = [
     price: null,
     available: true,
     accent: "#F2B632",
+    runFrames: 6,
     ingredients: null,
     allergens: null
   },
@@ -88,6 +94,7 @@ window.DARLINGS_CATALOGUE = [
     price: null,
     available: true,
     accent: "#7FB3D3",
+    runFrames: 6,
     ingredients: null,
     allergens: null
   },
@@ -102,6 +109,7 @@ window.DARLINGS_CATALOGUE = [
     price: null,
     available: true,
     accent: "#EE5C8F",
+    runFrames: 6,
     ingredients: null,
     allergens: null
   },
@@ -116,6 +124,7 @@ window.DARLINGS_CATALOGUE = [
     price: null,
     available: true,
     accent: "#C8392D",
+    runFrames: 6,
     ingredients: null,
     allergens: null
   }
