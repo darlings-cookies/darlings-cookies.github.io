@@ -229,18 +229,134 @@
   /* ---------- header counter ---------- */
 
   var lastCount = null;
+  var inFlight = 0;         // cookies still running to the cart: counted once they land
   function renderCounter() {
     var count = cartCount();
+    var shown = Math.max(0, count - inFlight);
     var bubble = $("warenkorb-anzahl");
-    bubble.textContent = String(count);
-    bubble.classList.toggle("is-empty", count === 0);
+    bubble.textContent = String(shown);
+    bubble.classList.toggle("is-empty", shown === 0);
     $("warenkorb-anzahl-text").textContent = count + " " + cookieWord(count) + " im Warenkorb";
-    if (lastCount !== null && count !== lastCount) {
+    if (lastCount !== null && shown !== lastCount) {
       bubble.classList.remove("bump");
       void bubble.offsetWidth;            // restart the little bounce
       bubble.classList.add("bump");
     }
-    lastCount = count;
+    lastCount = shown;
+  }
+
+  /* ---------- cookie run: from the card into the cart ---------- */
+
+  function calmMotion() {
+    return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  }
+
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function easeInOut(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+
+  /* Crumbs fly out of the counter and the cart button wobbles. */
+  function splash(x, y) {
+    var button = $("warenkorb-oeffnen");
+    if (!button.animate) return;
+    button.animate([
+      { transform: "scale(1, 1)" },
+      { transform: "scale(1.1, 0.84)", offset: 0.25 },
+      { transform: "scale(0.95, 1.08)", offset: 0.6 },
+      { transform: "scale(1, 1)" }
+    ], { duration: 420, easing: "ease-out" });
+
+    for (var i = 0; i < 8; i++) {
+      var crumb = el("span", { class: "crumb" + (i % 2 ? " crumb--light" : ""), "aria-hidden": "true" });
+      var angle = Math.PI * (0.12 + 0.76 * (i / 7)) + (Math.random() - 0.5) * 0.3;   // fan above the cart
+      var reach = 26 + Math.random() * 22;
+      var dx = Math.cos(angle) * reach;
+      var up = Math.sin(angle) * reach;
+      crumb.style.left = (x - 3.5) + "px";
+      crumb.style.top = (y - 3.5) + "px";
+      document.body.appendChild(crumb);
+      crumb.animate([
+        { transform: "translate(0, 0) scale(1)", opacity: 1 },
+        { transform: "translate(" + (dx * 0.75) + "px," + (-up) + "px) scale(1)", opacity: 1, offset: 0.45 },
+        { transform: "translate(" + (dx * 1.15) + "px," + (-up * 0.2 + 16) + "px) scale(0.4)", opacity: 0 }
+      ], { duration: 480 + Math.random() * 160, easing: "ease-out" })
+        .onfinish = (function (node) { return function () { node.remove(); }; })(crumb);
+    }
+  }
+
+  /* The cookie turns round, runs off into the distance towards the cart and
+     cannonballs into the counter. Returns false if there is no run (reduced
+     motion, picture not on screen): the counter then updates straight away. */
+  function sendCookieRunning(img) {
+    if (!img || !img.naturalWidth || calmMotion() || document.hidden || !window.requestAnimationFrame) return false;
+    var from = img.getBoundingClientRect();
+    if (!from.width || !from.height || from.bottom < 0 || from.top > window.innerHeight) return false;
+
+    var w = from.width, h = from.height;
+    var x0 = from.left + w / 2, y0 = from.top + h / 2;
+    var runner = el("img", { class: "runner", src: img.currentSrc || img.src, alt: "", "aria-hidden": "true" });
+    runner.style.width = w + "px";
+    runner.style.height = h + "px";
+    document.body.appendChild(runner);
+
+    var bubble = $("warenkorb-anzahl");
+    var first = bubble.getBoundingClientRect();
+    var distance = Math.hypot(first.left + first.width / 2 - x0, first.top + first.height / 2 - y0);
+    var TURN = 280;
+    var RUN = Math.min(950, Math.max(420, distance * 1.1));
+    var JUMP = 520;
+    var steps = Math.round(RUN / 105);          // little footsteps
+    var sRun = 46 / Math.max(w, h);             // far away = small
+    var sLand = 18 / Math.max(w, h);
+    var t0 = null;
+
+    inFlight++;
+
+    function frame(now) {
+      if (t0 === null) t0 = now;
+      var t = now - t0;
+      var b = bubble.getBoundingClientRect();   // read every frame: the header may move or resize
+      var cx = b.left + b.width / 2, cy = b.top + b.height / 2;
+      var lx = cx - 46, ly = cy + 36;           // take-off spot just below the cart
+      var x, y, s, flip, rot = 0, alpha = 1, p;
+
+      if (t < TURN) {                           // 1. hop and turn round
+        p = t / TURN;
+        x = x0;
+        y = y0 - Math.sin(p * Math.PI) * 16;
+        s = 1;
+        flip = Math.cos(p * Math.PI);
+      } else if (t < TURN + RUN) {              // 2. run off into the distance
+        p = (t - TURN) / RUN;
+        var e = easeInOut(p);
+        var stride = Math.sin(p * steps * Math.PI);
+        s = lerp(1, sRun, e);
+        x = lerp(x0, lx, e);
+        y = lerp(y0, ly, e) - Math.abs(stride) * 0.09 * h * s;
+        rot = stride * 12;
+        flip = -1;
+      } else if (t < TURN + RUN + JUMP) {       // 3. cannonball
+        p = (t - TURN - RUN) / JUMP;
+        var q = 1 - p;
+        x = q * q * lx + 2 * q * p * (cx - 20) + p * p * cx;
+        y = q * q * ly + 2 * q * p * (cy - 64) + p * p * cy;
+        s = lerp(sRun, sLand, p * p);
+        rot = -720 * p;
+        flip = -1;
+        if (p > 0.88) alpha = 1 - (p - 0.88) / 0.12;
+      } else {                                  // splash: now the number ticks up
+        runner.remove();
+        inFlight = Math.max(0, inFlight - 1);
+        renderCounter();
+        splash(cx, cy);
+        return;
+      }
+
+      runner.style.opacity = alpha;
+      runner.style.transform = "translate(" + (x - w / 2) + "px," + (y - h / 2) + "px) rotate(" + rot + "deg) scale(" + (s * flip) + "," + s + ")";
+      window.requestAnimationFrame(frame);
+    }
+    window.requestAnimationFrame(frame);
+    return true;
   }
 
   /* ---------- cart drawer ---------- */
@@ -443,7 +559,11 @@
       if (add) {
         var id = add.getAttribute("data-add");
         var cookie = findCookie(id);
-        setQuantity(id, (cart[id] || 0) + 1);
+        var before = cart[id] || 0;
+        var card = add.closest(".card");
+        setQuantity(id, before + 1);
+        // start the run before the cards are rebuilt, while the picture is still on the page
+        if ((cart[id] || 0) > before && card) sendCookieRunning(card.querySelector(".card__art img"));
         renderAll('[data-add="' + id + '"]');
         announce(cookie.name + " liegt im Warenkorb. Jetzt " + cartCount() + " " + cookieWord(cartCount()) + ".");
         return;

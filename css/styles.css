@@ -146,6 +146,18 @@ main:focus-visible, section:focus-visible, .card:focus-visible, h2:focus-visible
 .cartbtn__count.bump { animation: bump 0.35s ease; }
 @keyframes bump { 40% { transform: scale(1.35) rotate(-8deg); } }
 
+/* a cookie on its way from its card into the cart (moved by js/app.js) */
+.runner {
+  position: fixed; left: 0; top: 0; z-index: 40;
+  max-width: none; object-fit: contain;
+  pointer-events: none; will-change: transform;
+}
+.crumb {
+  position: fixed; z-index: 40; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--choc); pointer-events: none;
+}
+.crumb--light { background: #C98A4B; }
+
 @media (max-width: 620px) {
   .top__nav { display: none; }
   .cartbtn { margin-left: auto; }

@@ -1,0 +1,8 @@
+# Claude Code files stay out of the repo
+.claude/
+CLAUDE.md
+CLAUDE.local.md
+.mcp.json
+
+# macOS
+.DS_Store
