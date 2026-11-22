@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DARLINGS Cookies</title>
+<meta name="description" content="Jeder Cookie hat seinen eigenen Kopf. Lerne die DARLINGS kennen und bestelle deinen Lieblings-Cookie.">
+<link rel="icon" type="image/png" href="images/favicon.png">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<a class="skip" href="#cookies">Direkt zu den Cookies</a>
+
+<header class="top">
+  <div class="top__inner">
+    <a class="top__logo" href="#start" aria-label="DARLINGS, zum Seitenanfang">
+      <img src="images/logo.webp" alt="DARLINGS" width="900" height="355">
+    </a>
+    <nav class="top__nav" aria-label="Hauptnavigation">
+      <a href="#cookies">Cookies</a>
+      <a href="#bestellen">So bestellst du</a>
+    </nav>
+    <button class="cartbtn" id="warenkorb-oeffnen" type="button" aria-haspopup="dialog">
+      <span>Warenkorb</span>
+      <span class="cartbtn__count" id="warenkorb-anzahl" aria-hidden="true">0</span>
+      <span class="sr-only" id="warenkorb-anzahl-text">0 Cookies im Warenkorb</span>
+    </button>
+  </div>
+</header>
+
+<p class="testbar" id="testhinweis" hidden>
+  <strong>Testmodus.</strong> Die Preise sind Beispielpreise. Es wird noch keine echte Bestellung verschickt.
+</p>
+
+<main id="start" tabindex="-1">
+
+  <section class="hero" aria-labelledby="hero-titel">
+    <div class="hero__inner">
+      <div class="hero__text">
+        <h1 class="hero__title" id="hero-titel">
+          <span>Jeder Cookie</span>
+          <span>hat seinen</span>
+          <span>eigenen Kopf.</span>
+        </h1>
+        <p class="hero__lead">Lerne die DARLINGS kennen und such dir deinen Lieblings-Cookie aus.</p>
+        <a class="btn btn--big" href="#cookies">Cookies entdecken</a>
+      </div>
+      <div class="pile" id="stapel" aria-label="Die DARLINGS auf einen Blick"></div>
+    </div>
+  </section>
+
+  <section class="cookies" id="cookies" tabindex="-1" aria-labelledby="cookies-titel">
+    <div class="wrap">
+      <h2 id="cookies-titel">Das sind die DARLINGS</h2>
+      <p class="section-lead">Jeder schmeckt anders. Jeder tickt anders. Wer passt zu dir?</p>
+      <div class="grid" id="karten"></div>
+      <noscript>
+        <p class="notice">Für die Cookie-Karten und den Warenkorb braucht diese Seite JavaScript. Bitte schalte es in deinem Browser ein.</p>
+      </noscript>
+    </div>
+  </section>
+
+  <section class="howto" id="bestellen" tabindex="-1" aria-labelledby="bestellen-titel">
+    <div class="wrap">
+      <h2 id="bestellen-titel">So bestellst du</h2>
+      <ol class="steps">
+        <li>
+          <h3>Cookies aussuchen</h3>
+          <p>Tippe bei deinen Lieblingen auf «In den Warenkorb».</p>
+        </li>
+        <li>
+          <h3>Warenkorb prüfen</h3>
+          <p>Öffne den Warenkorb und ändere die Anzahl, bis alles stimmt.</p>
+        </li>
+        <li>
+          <h3>Bestellung erstellen</h3>
+          <p>Kopiere den Bestelltext und schick ihn uns per E-Mail oder WhatsApp.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot__inner">
+    <p class="foot__name">DARLINGS</p>
+    <p>Cookies mit eigenem Kopf.</p>
+    <p class="foot__test" id="fuss-testhinweis" hidden>Diese Seite läuft im Testmodus mit Beispielpreisen.</p>
+  </div>
+</footer>
+
+<!-- Warenkorb -->
+<dialog class="drawer" id="warenkorb" aria-labelledby="warenkorb-titel">
+  <div class="drawer__panel">
+    <div class="drawer__head">
+      <h2 id="warenkorb-titel" tabindex="-1">Warenkorb</h2>
+      <button class="iconbtn" id="warenkorb-schliessen" type="button" aria-label="Warenkorb schliessen">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="drawer__body" id="warenkorb-inhalt"></div>
+    <div class="drawer__foot" id="warenkorb-fuss"></div>
+  </div>
+</dialog>
+
+<!-- Bestelltext -->
+<dialog class="modal" id="bestellung" aria-labelledby="bestellung-titel">
+  <div class="modal__panel">
+    <div class="drawer__head">
+      <h2 id="bestellung-titel" tabindex="-1">Deine Bestellung</h2>
+      <button class="iconbtn" id="bestellung-schliessen" type="button" aria-label="Bestellung schliessen">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="modal__body">
+      <p class="modal__test" id="bestellung-testhinweis" hidden><strong>Testmodus.</strong> Das ist eine Probebestellung mit Beispielpreisen. Senden ist ausgeschaltet.</p>
+      <p id="bestellung-anleitung">Prüfe deine Bestellung. Kopiere dann den Text und schick ihn uns per E-Mail oder WhatsApp.</p>
+      <label class="sr-only" for="bestellung-text">Bestelltext</label>
+      <textarea id="bestellung-text" readonly spellcheck="false"></textarea>
+      <div class="modal__info" id="bestellung-info" hidden></div>
+      <p class="status" id="bestellung-status" role="status"></p>
+      <div class="modal__actions">
+        <button class="btn" id="bestellung-kopieren" type="button">Text kopieren</button>
+        <span class="modal__send" id="bestellung-senden"></span>
+        <button class="btn btn--plain" id="bestellung-zurueck" type="button">Zurück zum Warenkorb</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<p class="sr-only" id="ansage" role="status"></p>
+
+<script src="js/katalog.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
