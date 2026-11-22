@@ -650,6 +650,7 @@
       text = when.toLocaleString();
     }
     var time = $("fuss-stand-zeit");
+    if (!time || !$("fuss-stand")) return;   // an older copy of the page from the browser cache
     time.textContent = text;
     time.setAttribute("datetime", when.toISOString());
     $("fuss-stand").hidden = false;
