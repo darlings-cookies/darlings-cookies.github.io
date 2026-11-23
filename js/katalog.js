@@ -72,9 +72,9 @@ window.DARLINGS_SHOP = {
 window.DARLINGS_CATALOGUE = [
   {
     id: "golden-standard",
-    name: "The Golden Standard",
+    name: "Gold Standard",
     image: "images/golden-standard.webp",
-    imageAlt: "The Golden Standard: ein lächelnder Chocolate-Chip-Cookie mit einer blauen Rosette, auf der eine 1 steht.",
+    imageAlt: "Gold Standard: ein lächelnder Chocolate-Chip-Cookie mit einer blauen Rosette, auf der eine 1 steht.",
     description: "Er sitzt in der ersten Reihe und hat das Zusatzblatt längst gelöst. Brauchst du einen Stift, fragt er freundlich: «Blau oder schwarz?» Er hat beide dabei. Und das Ärgerliche: Trotzdem ist er der Liebling von allen.",
     draft: false,
     variety: "Classic Chocolate Chip",
@@ -90,8 +90,8 @@ window.DARLINGS_CATALOGUE = [
     id: "biscoff-break",
     name: "Biscoff Break",
     image: "images/biscoff-break.webp",
-    imageAlt: "Biscoff Break: ein fröhlicher Cookie, der winkt und eine blaue Tasse in der Hand hält.",
-    description: "Alle rennen, nur er nicht. Während die anderen durch den Gang hetzen, nimmt er einen Schluck aus seiner Tasse und sagt: «Ich komme auch an. Nur gemütlicher.» Und wirklich: Er wird immer fertig und hat dabei am meisten Spass.",
+    imageAlt: "Biscoff Break: ein fröhlicher Cookie, der sich am Kopf kratzt und eine übervolle blaue Tasse in der Hand hält.",
+    description: "Er meint es immer gut, nur läuft selten etwas nach Plan. Der Kaffee schwappt über, die Krümel liegen überall, und seinen Stundenplan sucht er seit Montag. Dann kratzt er sich am Kopf und lacht: «Ups. Wo war ich gerade?» Böse sein kann ihm trotzdem niemand.",
     draft: true,
     variety: "Biscoff",
     price: null,
