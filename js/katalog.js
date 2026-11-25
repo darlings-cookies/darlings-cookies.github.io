@@ -15,7 +15,7 @@ window.DARLINGS_SHOP = {
   //         the site shows a test banner, and every order e-mail is marked
   //         as «TESTBESTELLUNG».
   // false = live. Only cookies with a confirmed price can be ordered.
-  testMode: true,
+  testMode: false,
 
   // Sample price in CHF, used ONLY in test mode for cookies whose own
   // "price" is still null. It is labelled «Beispielpreis» everywhere.
