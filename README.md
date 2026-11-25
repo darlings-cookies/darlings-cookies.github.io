@@ -50,29 +50,35 @@ Open `js/katalog.js`. Each character is one block:
 `testMode: true` in `js/katalog.js` means:
 
 - cookies without a confirmed price use `samplePrice`, labelled «Beispielpreis»
-- a test banner is shown and the order text starts with «TESTBESTELLUNG»
-- the WhatsApp and e-mail send buttons are switched off
+- a test banner is shown and every order e-mail is marked «TESTBESTELLUNG»
 
 To go live:
 
 1. Enter the confirmed `price` for each cookie.
-2. Fill in `order.whatsapp` and/or `order.email`.
+2. Check `order.email`, the address that receives the orders.
 3. Optionally fill in `fulfilment.pickup`, `fulfilment.delivery`, `payment`
-   and `order.note`. These lines appear in the order pop-up and the order text.
+   and `order.note`. These lines appear in the order pop-up and the order e-mail.
 4. Fill in `ingredients` and `allergens` once confirmed.
 5. Set `testMode: false`.
 
 In live mode a cookie without a confirmed price shows «Preis folgt bald» and
 cannot be ordered.
 
-## How ordering works right now
+## How ordering works
 
-The cart builds an order text (quantity per cookie, number of cookies, total
-in CHF). The customer copies it, or sends it with the WhatsApp / e-mail button
-once a destination is set. The website itself does not receive or store
-orders, so it never shows an "order received" message.
+In the cart the customer taps «Bestellung erstellen», then enters their name,
+picks pick-up or delivery within Lufingen (delivery asks for the address) and
+how to be contacted: SMS, WhatsApp (mobile number) or e-mail. «Bestellung
+senden» e-mails the order to `order.email` straight away. That e-mail is the
+order.
+
+The e-mail is sent by the free form service FormSubmit (formsubmit.co),
+because a static site cannot send e-mail itself. The very first order makes
+FormSubmit send an activation e-mail to `order.email`; click the link in it
+once. Orders only arrive after that.
 
 The cart is saved in the visitor's own browser and survives a page reload.
+It is emptied after an order has been sent.
 
 ## Host on GitHub Pages
 

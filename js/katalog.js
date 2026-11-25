@@ -12,8 +12,8 @@
 window.DARLINGS_SHOP = {
 
   // true  = test mode. Cookies without a confirmed price use "samplePrice",
-  //         the site shows a test banner, and the WhatsApp / e-mail send
-  //         buttons stay switched off.
+  //         the site shows a test banner, and every order e-mail is marked
+  //         as «TESTBESTELLUNG».
   // false = live. Only cookies with a confirmed price can be ordered.
   testMode: true,
 
@@ -26,15 +26,16 @@ window.DARLINGS_SHOP = {
   // Highest quantity of one cookie in a single order.
   maxPerCookie: 99,
 
-  // Where the finished order text should go. Leave null until confirmed.
+  // Where orders go. When a customer taps «Bestellung senden», the order
+  // is e-mailed to this address by the form service FormSubmit
+  // (formsubmit.co). Leave "email" null to switch sending off.
   order: {
-    whatsapp: null,   // business number in international format, digits only, e.g. "41791234567"
-    email: null,      // e.g. "bestellung@example.ch"
-    note: null        // optional extra line at the end of every order text,
+    email: "darlings.cookies.ch@gmail.com",
+    note: null        // optional extra line at the end of every order,
                       // e.g. "Bitte gewünschtes Abholdatum dazuschreiben."
   },
 
-  // Shown in the order pop-up and added to the order text once set.
+  // Shown in the order pop-up and added to the order e-mail once set.
   fulfilment: {
     pickup: null,     // e.g. "Abholung: Mittwoch 12–14 Uhr, Musterstrasse 1, Zürich"
     delivery: null    // e.g. "Lieferung in Zürich ab CHF 30.–"

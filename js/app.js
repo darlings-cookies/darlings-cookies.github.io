@@ -1,6 +1,6 @@
 /* =====================================================================
    DARLINGS – page logic
-   Builds the character cards, the cart and the order text from
+   Builds the character cards, the cart and the order form from
    js/katalog.js. You normally do not need to edit this file.
    ===================================================================== */
 (function () {
@@ -504,23 +504,175 @@
     }
   }
 
-  /* ---------- order text ---------- */
+  /* ---------- order form ---------- */
+
+  var SEND_URL = "https://formsubmit.co/ajax/";
+  var sending = false;
 
   function buildOrderText() {
     var lines = cartLines();
     var count = cartCount();
     var out = [];
     if (TEST) out.push("*** TESTBESTELLUNG – Beispielpreise, nicht gültig ***", "");
-    out.push("Bestellung DARLINGS Cookies", "");
     lines.forEach(function (line) {
       out.push(line.qty + " × " + line.cookie.name +
         (line.cookie.variety ? " (" + line.cookie.variety + ")" : "") +
         " à " + money(line.unit) + " = " + money(line.sum));
     });
     out.push("", "Anzahl Cookies: " + count, "Total: " + money(cartTotal()));
-    var extra = [FULFILMENT.pickup, FULFILMENT.delivery, SHOP.payment, ORDER.note].filter(Boolean);
-    if (extra.length) out.push("", extra.join("\n"));
     return out.join("\n");
+  }
+
+  function picked(name) {
+    var box = document.querySelector('#bestellung-formular input[name="' + name + '"]:checked');
+    return box ? box.value : "";
+  }
+
+  /* Shows the address field for delivery, and the phone or e-mail field
+     that fits the chosen way of getting in touch. */
+  function syncOrderFields() {
+    var contact = picked("kontakt");
+    $("b-adresse-feld").hidden = picked("erhalt") !== "lieferung";
+    $("b-telefon-feld").hidden = !(contact === "sms" || contact === "whatsapp");
+    $("b-email-feld").hidden = contact !== "email";
+  }
+
+  function setFieldError(id, message) {
+    var box = $(id + "-fehler");
+    var field = $(id);
+    box.textContent = message || "";
+    box.hidden = !message;
+    if (field.tagName === "INPUT") {
+      if (message) {
+        field.setAttribute("aria-invalid", "true");
+        field.setAttribute("aria-describedby", id + "-fehler");
+      } else {
+        field.removeAttribute("aria-invalid");
+        field.removeAttribute("aria-describedby");
+      }
+    }
+  }
+
+  function setStatus(kind, message) {
+    var status = $("bestellung-status");
+    status.className = "status" + (kind ? " status--" + kind : "");
+    status.textContent = message || "";
+  }
+
+  /* Reads the form. Returns the customer's details, or null after marking
+     what is missing. */
+  function readOrderForm() {
+    var name = $("b-name").value.trim();
+    var how = picked("erhalt");
+    var address = $("b-adresse").value.trim();
+    var contact = picked("kontakt");
+    var phone = $("b-telefon").value.trim();
+    var email = $("b-email").value.trim();
+    var byPhone = contact === "sms" || contact === "whatsapp";
+    var firstBad = null;
+
+    function check(id, message, focusTarget) {
+      setFieldError(id, message);
+      if (message && !firstBad) firstBad = focusTarget || $(id);
+    }
+
+    check("b-name", name ? "" : "Bitte gib deinen Namen ein.");
+    check("b-erhalt", how ? "" : "Bitte wähle Abholung oder Lieferung.",
+      document.querySelector('#b-erhalt input'));
+    check("b-adresse", how === "lieferung" && !address ? "Bitte gib deine Adresse in Lufingen ein." : "");
+    check("b-kontakt", contact ? "" : "Bitte wähle, wie wir uns bei dir melden sollen.",
+      document.querySelector('#b-kontakt input'));
+    check("b-telefon", byPhone && phone.replace(/\D/g, "").length < 9
+      ? "Bitte gib deine Handynummer ein, zum Beispiel 079 123 45 67." : "");
+    check("b-email", contact === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+      ? "Bitte gib eine gültige E-Mail-Adresse ein." : "");
+
+    if (firstBad) {
+      setStatus("error", "Da fehlt noch etwas. Schau dir bitte die markierten Felder an.");
+      firstBad.focus();
+      return null;
+    }
+    return {
+      name: name,
+      how: how === "lieferung" ? "Lieferung innerhalb von Lufingen" : "Abholung",
+      address: how === "lieferung" ? address : "",
+      contactLabel: contact === "sms" ? "SMS" : contact === "whatsapp" ? "WhatsApp" : "E-Mail",
+      contactValue: byPhone ? phone : email,
+      email: contact === "email" ? email : ""
+    };
+  }
+
+  /* The e-mail that arrives at the shop: one row per entry. */
+  function buildOrderMail(who) {
+    var mail = {
+      _subject: (TEST ? "TESTBESTELLUNG" : "Neue Bestellung") + " DARLINGS Cookies: " + who.name,
+      _template: "table",
+      _captcha: "false"
+    };
+    if (who.email) mail._replyto = who.email;
+    if (TEST) mail["Achtung"] = "TESTBESTELLUNG – Beispielpreise, nicht gültig";
+    mail["Name"] = who.name;
+    mail["Erhalt"] = who.how;
+    if (who.address) mail["Lieferadresse"] = who.address;
+    mail["Kontakt per"] = who.contactLabel;
+    mail[who.email ? "E-Mail-Adresse" : "Handynummer"] = who.contactValue;
+    cartLines().forEach(function (line) {
+      mail[line.cookie.name + (line.cookie.variety ? " (" + line.cookie.variety + ")" : "")] =
+        line.qty + " Stück à " + money(line.unit) + " = " + money(line.sum);
+    });
+    mail["Anzahl Cookies"] = String(cartCount());
+    mail["Total"] = money(cartTotal());
+    [FULFILMENT.pickup, FULFILMENT.delivery, SHOP.payment, ORDER.note].filter(Boolean).forEach(function (t, i) {
+      mail["Hinweis " + (i + 1)] = t;
+    });
+    return mail;
+  }
+
+  function sendOrder() {
+    if (sending || !cartCount()) return;
+    setStatus("", "");
+    var who = readOrderForm();
+    if (!who) return;
+    if ($("b-honig").value) return;          // filled in by a spam program
+    if (!ORDER.email) {
+      setStatus("error", "Bestellen ist im Moment ausgeschaltet. Bitte versuch es später nochmals.");
+      return;
+    }
+
+    var button = $("bestellung-senden");
+    function failed() {
+      sending = false;
+      button.disabled = false;
+      button.textContent = "Bestellung senden";
+      setStatus("error", "Das Senden hat nicht geklappt. Deine Bestellung ist noch NICHT bei uns. " +
+        "Bitte versuch es nochmals oder schreib uns an " + ORDER.email + ".");
+    }
+
+    sending = true;
+    button.disabled = true;
+    button.textContent = "Wird gesendet …";
+
+    window.fetch(SEND_URL + encodeURIComponent(ORDER.email), {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify(buildOrderMail(who))
+    }).then(function (response) {
+      return response.json().then(function (answer) {
+        if (!response.ok || String(answer && answer.success) !== "true") throw new Error("not sent");
+      });
+    }).then(function () {
+      sending = false;
+      button.disabled = false;
+      button.textContent = "Bestellung senden";
+      cart = {}; lineErrors = {}; saveCart(); renderAll();
+      $("bestellung-formular").hidden = true;
+      $("bestellung-danke").hidden = false;
+      $("bestellung-danke-titel").textContent = "Danke, " + who.name + "!";
+      $("bestellung-danke-text").textContent = "Deine Bestellung ist bei uns angekommen. Wir melden uns bald per " +
+        who.contactLabel + " bei dir." + (TEST ? " (Testmodus: Das war eine Probebestellung.)" : "");
+      $("bestellung-danke-titel").focus();
+      announce("Deine Bestellung wurde gesendet.");
+    }).catch(failed);
   }
 
   function openOrder() {
@@ -528,70 +680,29 @@
     var text = buildOrderText();
     var area = $("bestellung-text");
     area.value = text;
-    area.rows = Math.min(Math.max(text.split("\n").length + 1, 6), 14);
-    $("bestellung-status").textContent = "";
-    $("bestellung-status").className = "status";
+    setStatus("", "");
     $("bestellung-testhinweis").hidden = !TEST;
+    $("bestellung-formular").hidden = false;
+    $("bestellung-danke").hidden = true;
+    ["b-name", "b-erhalt", "b-adresse", "b-kontakt", "b-telefon", "b-email"].forEach(function (id) {
+      setFieldError(id, "");
+    });
+    syncOrderFields();
 
     var info = $("bestellung-info");
     info.textContent = "";
-    [FULFILMENT.pickup, FULFILMENT.delivery, SHOP.payment].filter(Boolean).forEach(function (t) {
+    [FULFILMENT.pickup, FULFILMENT.delivery, SHOP.payment, ORDER.note].filter(Boolean).forEach(function (t) {
       info.appendChild(el("p", { text: t }));
     });
-    if (!TEST && ORDER.email) info.appendChild(el("p", { text: "E-Mail: " + ORDER.email }));
-    if (!TEST && ORDER.whatsapp) info.appendChild(el("p", { text: "WhatsApp: +" + String(ORDER.whatsapp).replace(/\D/g, "") }));
     info.hidden = !info.childNodes.length;
-
-    // Send buttons only exist once a destination is set AND test mode is off.
-    var send = $("bestellung-senden");
-    send.textContent = "";
-    if (!TEST && ORDER.whatsapp) {
-      send.appendChild(el("a", { class: "btn btn--plain", target: "_blank", rel: "noopener",
-        href: "https://wa.me/" + String(ORDER.whatsapp).replace(/\D/g, "") + "?text=" + encodeURIComponent(text) },
-        ["Per WhatsApp senden"]));
-    }
-    if (!TEST && ORDER.email) {
-      send.appendChild(el("a", { class: "btn btn--plain",
-        href: "mailto:" + ORDER.email + "?subject=" + encodeURIComponent("Bestellung DARLINGS Cookies") +
-              "&body=" + encodeURIComponent(text) },
-        ["Per E-Mail senden"]));
-    }
 
     $("warenkorb").close();
     $("bestellung").showModal();
-    // show the whole text at once; on small screens the pop-up itself scrolls
+    // show the whole order at once; the pop-up itself scrolls
     area.style.height = "auto";
     area.style.height = (area.scrollHeight + 8) + "px";
     area.scrollTop = 0;
     $("bestellung-titel").focus();
-  }
-
-  function copyOrder() {
-    var area = $("bestellung-text");
-    var status = $("bestellung-status");
-
-    function byHand() {
-      try { area.focus(); area.select(); return document.execCommand("copy"); }
-      catch (err) { return false; }
-    }
-    function done(ok) {
-      if (ok) {
-        status.className = "status status--ok";
-        status.textContent = TEST
-          ? "Kopiert. Im Testmodus wird nichts verschickt."
-          : "Kopiert. Füge den Text jetzt in deine E-Mail oder WhatsApp-Nachricht ein und schick ihn ab.";
-      } else {
-        area.focus(); area.select();
-        status.className = "status status--error";
-        status.textContent = "Kopieren hat nicht geklappt. Der Text ist markiert: Kopiere ihn bitte von Hand.";
-      }
-    }
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(area.value).then(function () { done(true); }, function () { done(byHand()); });
-    } else {
-      done(byHand());
-    }
   }
 
   /* ---------- events ---------- */
@@ -670,7 +781,7 @@
         return;
       }
       if (t.closest("#bestellung-erstellen")) { openOrder(); return; }
-      if (t.closest("#bestellung-kopieren")) { copyOrder(); return; }
+      if (t.closest("#bestellung-fertig")) { $("bestellung").close(); return; }
       if (t.closest("#bestellung-schliessen")) { $("bestellung").close(); return; }
       if (t.closest("#bestellung-zurueck")) { $("bestellung").close(); openCart(); return; }
 
@@ -678,8 +789,14 @@
       if (t === $("warenkorb") || t === $("bestellung")) t.close();
     });
 
+    $("bestellung-formular").addEventListener("submit", function (event) {
+      event.preventDefault();
+      sendOrder();
+    });
+
     // Typing a quantity directly.
     document.addEventListener("change", function (event) {
+      if (event.target.closest("#bestellung-formular")) { syncOrderFields(); return; }
       var input = event.target.closest("[data-qty]");
       if (!input) return;
       var id = input.getAttribute("data-qty");

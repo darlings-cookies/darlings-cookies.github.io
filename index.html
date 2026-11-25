@@ -31,7 +31,7 @@
 </header>
 
 <p class="testbar" id="testhinweis" hidden>
-  <strong>Testmodus.</strong> Die Preise sind Beispielpreise. Es wird noch keine echte Bestellung verschickt.
+  <strong>Testmodus.</strong> Die Preise sind Beispielpreise. Bestellungen kommen als Testbestellung an.
 </p>
 
 <main id="start" tabindex="-1">
@@ -75,8 +75,8 @@
           <p>Öffne den Warenkorb und ändere die Anzahl, bis alles stimmt.</p>
         </li>
         <li>
-          <h3>Bestellung erstellen</h3>
-          <p>Kopiere den Bestelltext und schick ihn uns per E-Mail oder WhatsApp.</p>
+          <h3>Bestellung senden</h3>
+          <p>Trag deinen Namen ein, wähle Abholung oder Lieferung in Lufingen und tippe auf «Bestellung senden».</p>
         </li>
       </ol>
     </div>
@@ -116,17 +116,66 @@
         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg>
       </button>
     </div>
-    <div class="modal__body">
-      <p class="modal__test" id="bestellung-testhinweis" hidden><strong>Testmodus.</strong> Das ist eine Probebestellung mit Beispielpreisen. Senden ist ausgeschaltet.</p>
-      <p id="bestellung-anleitung">Prüfe deine Bestellung. Kopiere dann den Text und schick ihn uns per E-Mail oder WhatsApp.</p>
-      <label class="sr-only" for="bestellung-text">Bestelltext</label>
+    <form class="modal__body" id="bestellung-formular" novalidate>
+      <p class="modal__test" id="bestellung-testhinweis" hidden><strong>Testmodus.</strong> Das ist eine Probebestellung mit Beispielpreisen. Sie wird als Testbestellung verschickt.</p>
+      <p id="bestellung-anleitung">Prüfe deine Bestellung und sag uns, wie du deine Cookies bekommen möchtest.</p>
+      <label class="sr-only" for="bestellung-text">Deine Bestellung</label>
       <textarea id="bestellung-text" readonly spellcheck="false"></textarea>
       <div class="modal__info" id="bestellung-info" hidden></div>
+
+      <div class="field">
+        <label for="b-name">Dein Name</label>
+        <input id="b-name" type="text" autocomplete="name" maxlength="80">
+        <p class="error" id="b-name-fehler" hidden></p>
+      </div>
+
+      <fieldset class="field" id="b-erhalt">
+        <legend>Wie möchtest du deine Cookies bekommen?</legend>
+        <label class="choice"><input type="radio" name="erhalt" value="abholung"> Abholung</label>
+        <label class="choice"><input type="radio" name="erhalt" value="lieferung"> Lieferung innerhalb von Lufingen</label>
+        <p class="error" id="b-erhalt-fehler" hidden></p>
+      </fieldset>
+
+      <div class="field" id="b-adresse-feld" hidden>
+        <label for="b-adresse">Lieferadresse in Lufingen</label>
+        <input id="b-adresse" type="text" autocomplete="street-address" maxlength="120">
+        <p class="error" id="b-adresse-fehler" hidden></p>
+      </div>
+
+      <fieldset class="field" id="b-kontakt">
+        <legend>Wie sollen wir uns bei dir melden?</legend>
+        <label class="choice"><input type="radio" name="kontakt" value="sms"> SMS</label>
+        <label class="choice"><input type="radio" name="kontakt" value="whatsapp"> WhatsApp</label>
+        <label class="choice"><input type="radio" name="kontakt" value="email"> E-Mail</label>
+        <p class="error" id="b-kontakt-fehler" hidden></p>
+      </fieldset>
+
+      <div class="field" id="b-telefon-feld" hidden>
+        <label for="b-telefon">Deine Handynummer</label>
+        <input id="b-telefon" type="tel" inputmode="tel" autocomplete="tel" maxlength="30" placeholder="079 123 45 67">
+        <p class="error" id="b-telefon-fehler" hidden></p>
+      </div>
+
+      <div class="field" id="b-email-feld" hidden>
+        <label for="b-email">Deine E-Mail-Adresse</label>
+        <input id="b-email" type="email" inputmode="email" autocomplete="email" maxlength="120">
+        <p class="error" id="b-email-fehler" hidden></p>
+      </div>
+
+      <!-- Falle für Spam-Programme: Menschen sehen dieses Feld nicht. -->
+      <input class="sr-only" id="b-honig" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+
       <p class="status" id="bestellung-status" role="status"></p>
       <div class="modal__actions">
-        <button class="btn" id="bestellung-kopieren" type="button">Text kopieren</button>
-        <span class="modal__send" id="bestellung-senden"></span>
+        <button class="btn" id="bestellung-senden" type="submit">Bestellung senden</button>
         <button class="btn btn--plain" id="bestellung-zurueck" type="button">Zurück zum Warenkorb</button>
+      </div>
+    </form>
+    <div class="modal__body" id="bestellung-danke" hidden>
+      <p class="modal__thanks" id="bestellung-danke-titel" tabindex="-1"></p>
+      <p id="bestellung-danke-text"></p>
+      <div class="modal__actions">
+        <button class="btn" id="bestellung-fertig" type="button">Schliessen</button>
       </div>
     </div>
   </div>
