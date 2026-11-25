@@ -42,12 +42,13 @@ window.DARLINGS_SHOP = {
                       // e.g. "Bitte gewünschtes Abholdatum dazuschreiben."
   },
 
-  // Shown in the order pop-up and added to the order e-mail once set.
+  // Shown under «So bestellst du» and in the order pop-up.
   fulfilment: {
-    pickup: null,     // e.g. "Abholung: Mittwoch 12–14 Uhr, Musterstrasse 1, Zürich"
-    delivery: null    // e.g. "Lieferung in Zürich ab CHF 30.–"
+    pickup: "Abholung: Im Schulhaus Gsteig auf dem oberen Pausenplatz.",
+    delivery: "Lieferung: An deinen gewünschten Ort in Lufingen. Sie erfolgt am Nachmittag und wird persönlich übergeben.",
+    timing: "Das genaue Zeitfenster teilen wir dir mit der Bestellbestätigung mit."
   },
-  payment: null       // e.g. "Zahlung mit TWINT oder bar bei der Abholung"
+  payment: "Zahlung: Bargeld."
 };
 
 /* ---------------------------------------------------------------------
@@ -68,8 +69,8 @@ window.DARLINGS_SHOP = {
    price        confirmed price in CHF as a number (e.g. 3.5), or null
    available    false = the character stays visible, but cannot be ordered
    accent       the character's sticker colour
-   ingredients  leave null until confirmed; shown on the card once set
-   allergens    leave null until confirmed; shown on the card once set
+   ingredients  shown on the card as «Zutaten»; null hides the line
+   allergens    shown on the card as «Allergene»; null hides the line
    turnFrames   number of turn-around pictures and
    runFrames    number of running pictures for the "run into the cart"
                 animation. They live in images/run/ and are called
@@ -93,8 +94,8 @@ window.DARLINGS_CATALOGUE = [
     accent: "#F2B632",
     turnFrames: 3,
     runFrames: 6,
-    ingredients: null,
-    allergens: null
+    ingredients: "folgt",
+    allergens: "folgt"
   },
   {
     id: "biscoff-break",
@@ -110,8 +111,8 @@ window.DARLINGS_CATALOGUE = [
     accent: "#7FB3D3",
     turnFrames: 3,
     runFrames: 6,
-    ingredients: null,
-    allergens: null
+    ingredients: "folgt",
+    allergens: "folgt"
   },
   {
     id: "dough-vinci",
@@ -127,8 +128,8 @@ window.DARLINGS_CATALOGUE = [
     accent: "#EE5C8F",
     turnFrames: 3,
     runFrames: 6,
-    ingredients: null,
-    allergens: null
+    ingredients: "folgt",
+    allergens: "folgt"
   },
   {
     id: "choc-noir",
@@ -144,8 +145,8 @@ window.DARLINGS_CATALOGUE = [
     accent: "#C8392D",
     turnFrames: 3,
     runFrames: 6,
-    ingredients: null,
-    allergens: null
+    ingredients: "folgt",
+    allergens: "folgt"
   },
   {
     id: "the-sweetheart",
@@ -161,8 +162,8 @@ window.DARLINGS_CATALOGUE = [
     accent: "#F29CA3",
     turnFrames: 3,
     runFrames: 6,
-    ingredients: null,
-    allergens: null
+    ingredients: "folgt",
+    allergens: "folgt"
   },
   {
     id: "charming-churro",
@@ -178,8 +179,8 @@ window.DARLINGS_CATALOGUE = [
     accent: "#C97B3A",
     turnFrames: 3,
     runFrames: 6,
-    ingredients: null,
-    allergens: null
+    ingredients: "folgt",
+    allergens: "folgt"
   },
   {
     id: "sunday-in-sicily",
@@ -195,8 +196,8 @@ window.DARLINGS_CATALOGUE = [
     accent: "#9DBB5B",
     turnFrames: 3,
     runFrames: 6,
-    ingredients: null,
-    allergens: null
+    ingredients: "folgt",
+    allergens: "folgt"
   },
   {
     id: "chunky-monkey",
@@ -212,7 +213,7 @@ window.DARLINGS_CATALOGUE = [
     accent: "#E2643C",
     turnFrames: 3,
     runFrames: 6,
-    ingredients: null,
-    allergens: null
+    ingredients: "folgt",
+    allergens: "folgt"
   }
 ];

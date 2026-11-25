@@ -9,6 +9,8 @@
   var SHOP = window.DARLINGS_SHOP || {};
   var ORDER = SHOP.order || {};
   var FULFILMENT = SHOP.fulfilment || {};
+  /* Pick-up, delivery and payment details, as written in js/katalog.js. */
+  var INFO_LINES = [FULFILMENT.pickup, FULFILMENT.delivery, FULFILMENT.timing, SHOP.payment, ORDER.note].filter(Boolean);
   var CATALOGUE = (window.DARLINGS_CATALOGUE || []).filter(function (c) {
     return c && c.id && c.name;
   });
@@ -684,9 +686,7 @@
     }
     if (who.delivery && DELIVERY_FEE) mail["Lieferung"] = money(DELIVERY_FEE);
     mail["Total"] = money(cartTotal() + feeFor(who.delivery));
-    [FULFILMENT.pickup, FULFILMENT.delivery, SHOP.payment, ORDER.note].filter(Boolean).forEach(function (t, i) {
-      mail["Hinweis " + (i + 1)] = t;
-    });
+    if (ORDER.note) mail["Hinweis"] = ORDER.note;
     return mail;
   }
 
@@ -762,7 +762,7 @@
 
     var info = $("bestellung-info");
     info.textContent = "";
-    [FULFILMENT.pickup, FULFILMENT.delivery, SHOP.payment, ORDER.note].filter(Boolean).forEach(function (t) {
+    INFO_LINES.forEach(function (t) {
       info.appendChild(el("p", { text: t }));
     });
     info.hidden = !info.childNodes.length;
@@ -916,6 +916,10 @@
     $("testhinweis").hidden = !TEST;
     $("fuss-testhinweis").hidden = !TEST;
     document.documentElement.classList.toggle("is-test", TEST);
+    if (INFO_LINES.length && $("bestell-infos")) {
+      INFO_LINES.forEach(function (t) { $("bestell-infos").appendChild(el("p", { text: t })); });
+      $("bestell-infos").hidden = false;
+    }
     if (FREE_EVERY && $("aktion")) {
       $("aktion").textContent = "Jeder " + FREE_EVERY + ". Cookie ist gratis: " + (FREE_EVERY - 1) + " bezahlen, " + FREE_EVERY + " bekommen.";
       $("aktion").hidden = false;

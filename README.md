@@ -56,8 +56,9 @@ To go live:
 
 1. Enter the confirmed `price` for each cookie.
 2. Check `order.email`, the address that receives the orders.
-3. Optionally fill in `fulfilment.pickup`, `fulfilment.delivery`, `payment`
-   and `order.note`. These lines appear in the order pop-up and the order e-mail.
+3. Check `fulfilment.pickup`, `fulfilment.delivery`, `fulfilment.timing` and
+   `payment`. These lines appear under «So bestellst du» and in the order
+   pop-up.
 4. Fill in `ingredients` and `allergens` once confirmed.
 5. Set `testMode: false`.
 
