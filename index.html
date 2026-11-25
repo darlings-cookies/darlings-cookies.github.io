@@ -48,7 +48,7 @@
         <a class="btn btn--big" href="#cookies">Cookies entdecken</a>
       </div>
       <img class="hero__scene" src="images/gruppenbild.webp" width="1670" height="942"
-           alt="Die acht DARLINGS am Limmatquai in Zürich, im Hintergrund das Grossmünster: Chunky Monkey springt im Handstand auf dem Skateboard von der Rampe, Gold Standard jubelt ihm zu. Dough Vinci sprayt ein buntes «DARLINGS» an die Mauer, über ihm schleicht sich Choc Noir heran. Am Geländer wirft The Charming Churro The Sweetheart eine Kusshand zu. Auf der Bank sitzen Sunday in Sicily mit seinem Espresso und Biscoff Break mit seiner Kaffeetasse.">
+           alt="Die acht DARLINGS am Limmatquai in Zürich, im Hintergrund das Grossmünster: Chunky Monkey springt im Handstand auf dem Skateboard von der Rampe, Gold Standard jubelt ihm zu. Dough Vinci sprayt ein buntes «DARLINGS» an die Mauer, über ihm schleicht sich Choc Noir heran. Am Geländer wirft Charming Churro Sweetheart eine Kusshand zu. Auf der Bank sitzen Sunday in Sicily mit seinem Espresso und Biscoff Break mit seiner Kaffeetasse.">
     </div>
   </section>
 
@@ -56,6 +56,7 @@
     <div class="wrap">
       <h2 id="cookies-titel">Das sind die DARLINGS</h2>
       <p class="section-lead">Jeder schmeckt anders. Jeder tickt anders. Wer passt zu dir?</p>
+      <p class="deal" id="aktion" hidden></p>
       <div class="grid" id="karten"></div>
       <noscript>
         <p class="notice">Für die Cookie-Karten und den Warenkorb braucht diese Seite JavaScript. Bitte schalte es in deinem Browser ein.</p>
@@ -77,7 +78,7 @@
         </li>
         <li>
           <h3>Bestellung senden</h3>
-          <p>Trag deinen Namen ein, wähle Abholung (gratis) oder Lieferung in Lufingen (+ CHF 1.00) und tippe auf «Bestellung senden».</p>
+          <p>Trag deinen Namen ein, wähle Abholung (gratis) oder Lieferung in Lufingen (+ CHF 1.00) und tippe auf «Bestellung senden». Wir bestätigen deine Bestellung innerhalb von 3 Werktagen.</p>
         </li>
       </ol>
     </div>
@@ -145,14 +146,13 @@
 
       <fieldset class="field" id="b-kontakt">
         <legend>Wie sollen wir uns bei dir melden?</legend>
-        <label class="choice"><input type="radio" name="kontakt" value="sms"> SMS</label>
         <label class="choice"><input type="radio" name="kontakt" value="whatsapp"> WhatsApp</label>
         <label class="choice"><input type="radio" name="kontakt" value="email"> E-Mail</label>
         <p class="error" id="b-kontakt-fehler" hidden></p>
       </fieldset>
 
       <div class="field" id="b-telefon-feld" hidden>
-        <label for="b-telefon">Deine Handynummer</label>
+        <label for="b-telefon">Deine Handynummer für WhatsApp</label>
         <input id="b-telefon" type="tel" inputmode="tel" autocomplete="tel" maxlength="30" placeholder="079 123 45 67">
         <p class="error" id="b-telefon-fehler" hidden></p>
       </div>
@@ -166,6 +166,7 @@
       <!-- Falle für Spam-Programme: Menschen sehen dieses Feld nicht. -->
       <input class="sr-only" id="b-honig" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
 
+      <p class="modal__note">Wir melden uns innerhalb von 3 Werktagen mit einer Bestätigung bei dir.</p>
       <p class="status" id="bestellung-status" role="status"></p>
       <div class="modal__actions">
         <button class="btn" id="bestellung-senden" type="submit">Bestellung senden</button>

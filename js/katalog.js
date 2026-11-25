@@ -26,6 +26,10 @@ window.DARLINGS_SHOP = {
   // Extra charge in CHF for delivery within Lufingen. Pick-up is free.
   deliveryFee: 1,
 
+  // Discount: every 5th cookie in an order is free (pay 4, get 5).
+  // Set to null to switch the discount off.
+  freeEvery: 5,
+
   // Highest quantity of one cookie in a single order.
   maxPerCookie: 99,
 
@@ -60,7 +64,7 @@ window.DARLINGS_SHOP = {
    draft        true = text still waiting for approval (a small
                 «Textentwurf» tag is shown in test mode only)
    variety      the cookie variety in a few words (used in the cart and the order)
-   flavor       one sentence about the flavour, shown on the card as «Geschmack»
+   flavor       the flavour in a few words, shown in small type under the name
    price        confirmed price in CHF as a number (e.g. 3.5), or null
    available    false = the character stays visible, but cannot be ordered
    accent       the character's sticker colour
@@ -83,7 +87,7 @@ window.DARLINGS_CATALOGUE = [
     description: "Er sitzt in der ersten Reihe und hat das Zusatzblatt längst gelöst. Brauchst du einen Stift, fragt er freundlich: «Blau oder schwarz?» Er hat beide dabei. Und das Ärgerliche: Trotzdem ist er der Liebling von allen.",
     draft: false,
     variety: "Classic Chocolate Chip",
-    flavor: "Klassischer Chocolate-Chip-Cookie.",
+    flavor: "Klassischer Chocolate Chip Cookie",
     price: 2,
     available: true,
     accent: "#F2B632",
@@ -100,7 +104,7 @@ window.DARLINGS_CATALOGUE = [
     description: "Er meint es immer gut, nur läuft selten etwas nach Plan. Der Kaffee schwappt über, die Krümel liegen überall, und seinen Stundenplan sucht er seit Montag. Dann kratzt er sich am Kopf und lacht: «Ups. Wo war ich gerade?» Böse sein kann ihm trotzdem niemand.",
     draft: true,
     variety: "Biscoff",
-    flavor: "Biscoff-Cookie mit Biscoff-Creme, Biscoff-Stücken und weissen Schokoladenchips.",
+    flavor: "Biscoff Cookie mit weissen Schokoladenstücken",
     price: 2,
     available: true,
     accent: "#7FB3D3",
@@ -116,8 +120,8 @@ window.DARLINGS_CATALOGUE = [
     imageAlt: "Dough Vinci: ein Cookie mit farbverschmierter Mütze, Jeansjacke, Pinsel und Farbpalette.",
     description: "Für ihn ist klar: Er ist der beste Künstler aller Zeiten. Hängen zwanzig Bilder an der Wand und nur eines ist von ihm, ruft er mit grosser Geste: «Neunzehn Bilder hängen am falschen Ort!» Bescheiden ist er nur im Schlaf.",
     draft: false,
-    variety: "Oreo & Biscoff",
-    flavor: "Bunter Cookie mit Oreo-Stücken und Biscoff-Stücken.",
+    variety: "Oreo",
+    flavor: "Bunter Oreo-Cookie",
     price: 2,
     available: true,
     accent: "#EE5C8F",
@@ -133,8 +137,8 @@ window.DARLINGS_CATALOGUE = [
     imageAlt: "Choc Noir: ein dunkler Schokoladen-Cookie mit Maske, Handschuhen und roten Turnschuhen.",
     description: "Maske auf, rote Turnschuhe geschnürt: Choc Noir ist der Superheld der Cookies. Sein Auftrag: verschwundene Kunstwerke finden und zurückbringen. Er gibt nie auf und übersieht keinen Krümel. Dough Vinci ist er schon dicht auf den Fersen.",
     draft: true,
-    variety: "Triple Chocolate",
-    flavor: "Triple-Chocolate-Cookie.",
+    variety: "Triple Chocolate Chip",
+    flavor: "Triple Chocolate Chip Cookie",
     price: 2,
     available: true,
     accent: "#C8392D",
@@ -145,13 +149,13 @@ window.DARLINGS_CATALOGUE = [
   },
   {
     id: "the-sweetheart",
-    name: "The Sweetheart",
+    name: "Sweetheart",
     image: "images/the-sweetheart.webp",
-    imageAlt: "The Sweetheart: ein goldener Cookie mit grossen, glänzenden Augen, Karamell und Salzflocken, der ein Herz fest an sich drückt.",
+    imageAlt: "Sweetheart: ein goldener Cookie mit grossen, glänzenden Augen, Karamell und Salzflocken, der ein Herz fest an sich drückt.",
     description: "Sein Herz drückt er fest an sich und verschenkt es trotzdem jeden Tag. Fällt jemandem das Znüni auf den Boden, teilt er seines und flüstert: «Nimm ruhig die grössere Hälfte.» Innen weich wie Karamell. Und obendrauf eine Prise Salz, damit es nicht zu kitschig wird.",
     draft: true,
     variety: "Salted Caramel",
-    flavor: "Salted-Caramel-Cookie.",
+    flavor: "Salted Caramel Cookie",
     price: 2,
     available: true,
     accent: "#F29CA3",
@@ -162,13 +166,13 @@ window.DARLINGS_CATALOGUE = [
   },
   {
     id: "charming-churro",
-    name: "The Charming Churro",
+    name: "Charming Churro",
     image: "images/charming-churro.webp",
-    imageAlt: "The Charming Churro: ein Cookie im Zimtzucker-Mantel mit roter Schleife und Stöckelschuhen, der eine Kusshand wirft und eine Zimtstange im Arm hält.",
+    imageAlt: "Charming Churro: ein Cookie im Zimtzucker-Mantel mit roter Schleife und Stöckelschuhen, der eine Kusshand wirft und eine Zimtstange im Arm hält.",
     description: "Sie betritt keinen Raum, sie hat einen Auftritt. Schleife gerichtet, Zimtstange im Arm, Kusshand in die Runde: «Bitte, bitte, nicht alle auf einmal.» Wo sie war, glitzert es noch tagelang. Das ist kein Staub. Das ist Zimtzucker.",
     draft: true,
     variety: "Cinnamon Toast Crunch",
-    flavor: "Cinnamon-Toast-Crunch-Cookie.",
+    flavor: "Cinnamon Toast Crunch Cookie",
     price: 2,
     available: true,
     accent: "#C97B3A",
@@ -185,7 +189,7 @@ window.DARLINGS_CATALOGUE = [
     description: "Er hat nie Stress, nur Termine mit der Sonne. Sonnenbrille auf dem Kopf, Espresso in der Hand, Blick aufs Meer: «Heute mache ich nichts. Und das mache ich gründlich.» Weich, nussig und bis oben voll mit Pistazien.",
     draft: true,
     variety: "Pistazie",
-    flavor: "Pistazien-Cookie mit Pistaziencreme und weissen Schokoladenchips.",
+    flavor: "Pistazien-Cookie mit Pistaziencreme und weissen Schokoladenstücken",
     price: 2,
     available: true,
     accent: "#9DBB5B",
@@ -198,11 +202,11 @@ window.DARLINGS_CATALOGUE = [
     id: "chunky-monkey",
     name: "Chunky Monkey",
     image: "images/chunky-monkey.webp",
-    imageAlt: "Chunky Monkey: ein muskulöser Peanut-Butter-Cookie mit Schokoladenchips, gestreiftem Stirnband und Schweissbändern, der lachend den Daumen hochhält.",
+    imageAlt: "Chunky Monkey: ein muskulöser Erdnussbutter-Cookie mit Schokoladenstücken, gestreiftem Stirnband und Schweissbändern, der lachend den Daumen hochhält.",
     description: "Zwanzig Liegestütze vor dem Frühstück, und zwar mit einem Lachen. Schaffst du etwas nicht, steht er schon neben dir und ruft: «Komm, einer geht noch!» Seine Muskeln sind aus Erdnussbutter. Sein Daumen zeigt immer nach oben.",
     draft: true,
-    variety: "Peanut Butter & Chocolate Chip",
-    flavor: "Peanut-Butter-Cookie mit Schokoladenchips.",
+    variety: "Erdnussbutter",
+    flavor: "Erdnussbutter-Cookie mit Schokoladenstücken",
     price: 2,
     available: true,
     accent: "#E2643C",

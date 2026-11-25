@@ -16,6 +16,7 @@
   var CURRENCY = SHOP.currency || "CHF";
   var MAX = Number.isInteger(SHOP.maxPerCookie) && SHOP.maxPerCookie > 0 ? SHOP.maxPerCookie : 99;
   var DELIVERY_FEE = typeof SHOP.deliveryFee === "number" && SHOP.deliveryFee > 0 ? Math.round(SHOP.deliveryFee * 100) : 0;
+  var FREE_EVERY = Number.isInteger(SHOP.freeEvery) && SHOP.freeEvery > 1 ? SHOP.freeEvery : 0;
   var STORAGE_KEY = "darlings-warenkorb-v1";
   var TILTS = [-1.1, 0.9, -0.7, 1.2, -0.9, 0.6];
 
@@ -136,8 +137,38 @@
     return Object.keys(cart).reduce(function (sum, id) { return sum + cart[id]; }, 0);
   }
 
-  function cartTotal() {
+  /* Price of everything in the cart before the discount. */
+  function cartSubtotal() {
     return cartLines().reduce(function (sum, line) { return sum + line.sum; }, 0);
+  }
+
+  /* Every FREE_EVERY-th cookie is free. If prices ever differ, the cheapest
+     cookies are the free ones. Returns { free: how many, rappen: their value }. */
+  function cartDiscount() {
+    var units = [];
+    if (FREE_EVERY) {
+      cartLines().forEach(function (line) {
+        for (var i = 0; i < line.qty; i++) units.push(line.unit);
+      });
+    }
+    units.sort(function (a, b) { return a - b; });
+    var free = FREE_EVERY ? Math.floor(units.length / FREE_EVERY) : 0;
+    var rappen = 0;
+    for (var k = 0; k < free; k++) rappen += units[k];
+    return { free: free, rappen: rappen };
+  }
+
+  /* What the customer pays for the cookies (delivery not included). */
+  function cartTotal() {
+    return cartSubtotal() - cartDiscount().rappen;
+  }
+
+  /* A nudge towards the next free cookie. */
+  function dealHint(count) {
+    var left = FREE_EVERY - (count % FREE_EVERY);    // the free one included
+    if (left === 1) return "Dein nächster Cookie ist gratis!";
+    return "Jeder " + FREE_EVERY + ". Cookie ist gratis. Noch " + (left - 1) + " " + cookieWord(left - 1) +
+      ", dann ist der nächste gratis.";
   }
 
   function setQuantity(id, qty) {
@@ -201,12 +232,13 @@
         el("div", { class: "card__art" }, [
           el("img", { src: cookie.image, alt: cookie.imageAlt || cookie.name, loading: i < 2 ? "eager" : "lazy" })
         ]),
-        el("h3", { class: "card__name", id: titleId, text: cookie.name }),
+        el("div", { class: "card__head" }, [
+          el("h3", { class: "card__name", id: titleId, text: cookie.name }),
+          cookie.flavor || cookie.variety ? el("p", { class: "card__flavor", text: cookie.flavor || cookie.variety }) : null
+        ]),
         el("div", { class: "card__body" }, [
           TEST && cookie.draft ? el("p", { class: "tag tag--draft", text: "Textentwurf" }) : null,
-          el("p", { class: "card__text", text: cookie.description || "" }),
-          cookie.flavor || cookie.variety
-            ? el("p", { class: "card__sort" }, [el("span", { text: "Geschmack" }), cookie.flavor || cookie.variety]) : null
+          el("p", { class: "card__text", text: cookie.description || "" })
         ].concat(details)),
         buy
       ]));
@@ -296,12 +328,25 @@
 
   /* The cookie turns its back, runs off into the distance towards the cart
      and cannonballs into the counter. Returns false if there is no run
-     (reduced motion, picture not on screen): the counter then updates
+     (the visitor's device asks for reduced motion): the counter then updates
      straight away. */
-  function sendCookieRunning(img, cookie) {
+  function sendCookieRunning(img, cookie, button) {
     if (!img || !img.naturalWidth || calmMotion() || document.hidden || !window.requestAnimationFrame) return false;
     var from = img.getBoundingClientRect();
-    if (!from.width || !from.height || from.bottom < 0 || from.top > window.innerHeight) return false;
+    if (!from.width || !from.height) return false;
+
+    // Picture scrolled out of sight (a tall card on a small screen, or hidden
+    // behind the header)? Then a small cookie hops out of the button instead.
+    var bar = document.querySelector(".top");
+    var roof = bar ? bar.getBoundingClientRect().bottom : 0;
+    var middle = from.top + from.height / 2;
+    if (middle < roof || middle > window.innerHeight) {
+      var spot = button ? button.getBoundingClientRect() : null;
+      if (!spot || !spot.width) return false;
+      var fit = Math.min(1, 120 / Math.max(from.width, from.height));
+      var fw = from.width * fit, fh = from.height * fit;
+      from = { left: spot.left + spot.width / 2 - fw / 2, top: spot.top - fh - 4, width: fw, height: fh };
+    }
 
     var w = from.width, h = from.height;
     var x0 = from.left + w / 2, y0 = from.top + h / 2;
@@ -468,13 +513,20 @@
 
     var count = cartCount();
     var anySample = lines.some(function (line) { return line.sample; });
+    var deal = cartDiscount();
     foot.appendChild(el("dl", { class: "totals" }, [
       el("div", {}, [el("dt", { text: "Anzahl" }), el("dd", { text: count + " " + cookieWord(count) })]),
+      deal.free ? el("div", {}, [el("dt", { text: "Zwischensumme" }), el("dd", { text: money(cartSubtotal()) })]) : null,
+      deal.free ? el("div", { class: "totals__deal" }, [
+        el("dt", { text: "Rabatt: " + deal.free + " " + cookieWord(deal.free) + " gratis" }),
+        el("dd", { text: "− " + money(deal.rappen) })
+      ]) : null,
       el("div", { class: "totals__sum" }, [
         el("dt", {}, ["Total", anySample ? el("span", { class: "tag", text: "Beispielpreise" }) : null]),
         el("dd", { id: "warenkorb-total", text: money(cartTotal()) })
       ])
     ]));
+    if (FREE_EVERY) foot.appendChild(el("p", { class: "totals__hint", text: dealHint(count) }));
     foot.appendChild(el("p", { class: "totals__note",
       text: "Abholung gratis. Lieferung innerhalb von Lufingen" + (DELIVERY_FEE ? " + " + money(DELIVERY_FEE) + "." : " gratis.") }));
     foot.appendChild(el("div", { class: "drawer__actions" }, [
@@ -512,6 +564,11 @@
         " à " + money(line.unit) + " = " + money(line.sum));
     });
     out.push("", "Anzahl Cookies: " + count);
+    var deal = cartDiscount();
+    if (deal.free) {
+      out.push("Rabatt (jeder " + FREE_EVERY + ". Cookie gratis): " + deal.free + " " + cookieWord(deal.free) +
+        " gratis, − " + money(deal.rappen));
+    }
     if (delivery && DELIVERY_FEE) out.push("Lieferung in Lufingen: " + money(DELIVERY_FEE));
     out.push("Total: " + money(cartTotal() + feeFor(delivery)));
     return out.join("\n");
@@ -531,7 +588,7 @@
     area.style.height = "auto";
     area.style.height = (area.scrollHeight + 8) + "px";
     $("b-adresse-feld").hidden = picked("erhalt") !== "lieferung";
-    $("b-telefon-feld").hidden = !(contact === "sms" || contact === "whatsapp");
+    $("b-telefon-feld").hidden = contact !== "whatsapp";
     $("b-email-feld").hidden = contact !== "email";
   }
 
@@ -566,7 +623,7 @@
     var contact = picked("kontakt");
     var phone = $("b-telefon").value.trim();
     var email = $("b-email").value.trim();
-    var byPhone = contact === "sms" || contact === "whatsapp";
+    var byPhone = contact === "whatsapp";
     var firstBad = null;
 
     function check(id, message, focusTarget) {
@@ -595,7 +652,7 @@
       delivery: how === "lieferung",
       how: how === "lieferung" ? "Lieferung innerhalb von Lufingen" : "Abholung",
       address: how === "lieferung" ? address : "",
-      contactLabel: contact === "sms" ? "SMS" : contact === "whatsapp" ? "WhatsApp" : "E-Mail",
+      contactLabel: contact === "whatsapp" ? "WhatsApp" : "E-Mail",
       contactValue: byPhone ? phone : email,
       email: contact === "email" ? email : ""
     };
@@ -620,6 +677,11 @@
         line.qty + " Stück à " + money(line.unit) + " = " + money(line.sum);
     });
     mail["Anzahl Cookies"] = String(cartCount());
+    var deal = cartDiscount();
+    if (deal.free) {
+      mail["Rabatt (jeder " + FREE_EVERY + ". Cookie gratis)"] =
+        deal.free + " " + cookieWord(deal.free) + " gratis, − " + money(deal.rappen);
+    }
     if (who.delivery && DELIVERY_FEE) mail["Lieferung"] = money(DELIVERY_FEE);
     mail["Total"] = money(cartTotal() + feeFor(who.delivery));
     [FULFILMENT.pickup, FULFILMENT.delivery, SHOP.payment, ORDER.note].filter(Boolean).forEach(function (t, i) {
@@ -677,8 +739,8 @@
       $("bestellung-formular").hidden = true;
       $("bestellung-danke").hidden = false;
       $("bestellung-danke-titel").textContent = "Danke, " + who.name + "!";
-      $("bestellung-danke-text").textContent = "Deine Bestellung ist bei uns angekommen. Wir melden uns bald per " +
-        who.contactLabel + " bei dir." + (TEST ? " (Testmodus: Das war eine Probebestellung.)" : "");
+      $("bestellung-danke-text").textContent = "Deine Bestellung ist bei uns angekommen. " +
+        "Wir melden uns innerhalb von 3 Werktagen per " + who.contactLabel + " mit einer Bestätigung bei dir." + (TEST ? " (Testmodus: Das war eine Probebestellung.)" : "");
       $("bestellung-danke-titel").focus();
       announce("Deine Bestellung wurde gesendet.");
     }).catch(failed);
@@ -748,7 +810,7 @@
         var card = add.closest(".card");
         setQuantity(id, before + 1);
         // start the run before the cards are rebuilt, while the picture is still on the page
-        if ((cart[id] || 0) > before && card) sendCookieRunning(card.querySelector(".card__art img"), cookie);
+        if ((cart[id] || 0) > before && card) sendCookieRunning(card.querySelector(".card__art img"), cookie, add);
         renderAll('[data-add="' + id + '"]');
         announce(cookie.name + " liegt im Warenkorb. Jetzt " + cartCount() + " " + cookieWord(cartCount()) + ".");
         return;
@@ -854,6 +916,10 @@
     $("testhinweis").hidden = !TEST;
     $("fuss-testhinweis").hidden = !TEST;
     document.documentElement.classList.toggle("is-test", TEST);
+    if (FREE_EVERY && $("aktion")) {
+      $("aktion").textContent = "Jeder " + FREE_EVERY + ". Cookie ist gratis: " + (FREE_EVERY - 1) + " bezahlen, " + FREE_EVERY + " bekommen.";
+      $("aktion").hidden = false;
+    }
     renderUpdated();
     if (!calmMotion()) loadRunFrames();
     renderAll();

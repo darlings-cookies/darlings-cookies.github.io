@@ -46,7 +46,7 @@ h1, h2, h3, p, ol, ul, dl, dd { margin: 0; }
 ol, ul { padding: 0; list-style: none; }
 button, input, textarea { font: inherit; color: inherit; }
 
-h1, h2, .card__name, .btn, .cartbtn, .foot__name, .empty__title, .card__amount {
+h1, h2, .card__name, .deal, .btn, .cartbtn, .foot__name, .empty__title, .card__amount {
   font-family: var(--font-display);
   font-weight: 400;
   letter-spacing: 0.01em;
@@ -211,6 +211,11 @@ main:focus-visible, section:focus-visible, .card:focus-visible, h2:focus-visible
 }
 
 @media (min-width: 1280px) {
+  /* never taller than the screen: the whole picture stays visible under the header */
+  .hero__stage {
+    max-width: min(1760px, max(860px, calc((100vh - 96px) * 1.7728)));
+    outline: var(--line) solid var(--choc);
+  }
   .hero__scene { border-top: 0; }
   .hero__text {
     position: absolute; left: 50.3%; top: 58%; width: 17%;
@@ -229,7 +234,7 @@ main:focus-visible, section:focus-visible, .card:focus-visible, h2:focus-visible
     position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
   }
   .hero .btn--big {
-    min-height: 0; padding: 0.6em 1.4em;
+    min-height: 0; padding: 0.6em 1.2em; white-space: nowrap;
     font-size: clamp(14px, 1.22vw, 21px); font-size: clamp(14px, 1.22cqw, 21px);
     background: rgba(242, 182, 50, 0.84);
     -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
@@ -241,6 +246,14 @@ main:focus-visible, section:focus-visible, .card:focus-visible, h2:focus-visible
 
 .cookies { padding: clamp(44px, 7vw, 84px) 0 clamp(52px, 8vw, 96px); scroll-margin-top: 80px; }
 .section-lead { margin-top: 8px; font-size: 1.15rem; color: var(--choc-soft); max-width: 60ch; }
+/* the discount, as a tilted sticker */
+.deal {
+  display: inline-block; margin-top: 16px; padding: 7px 18px 8px;
+  background: var(--mustard); border: 3px solid var(--choc); border-radius: 999px;
+  box-shadow: 0 4px 0 var(--choc); transform: rotate(-1.2deg);
+  font-size: clamp(1.05rem, 2.4vw, 1.3rem); line-height: 1.2;
+}
+.deal[hidden] { display: none; }
 
 .grid {
   margin-top: clamp(26px, 4vw, 44px);
@@ -266,23 +279,20 @@ main:focus-visible, section:focus-visible, .card:focus-visible, h2:focus-visible
 .card__art { position: relative; aspect-ratio: 1; background: var(--white); }
 .card__art img { position: absolute; inset: 16px 16px 10px; width: calc(100% - 32px); height: calc(100% - 26px); object-fit: contain; }
 
-.card__name {
+/* the coloured band: the name, and the flavour in small type under it */
+.card__head {
+  display: flex; flex-direction: column; justify-content: center; gap: 4px;
   padding: 10px 18px 12px;
   background: var(--accent); color: var(--accent-ink);
   border-top: var(--line) solid var(--choc); border-bottom: var(--line) solid var(--choc);
-  font-size: clamp(1.5rem, 2.3vw, 1.7rem); line-height: 1.1; text-wrap: balance;
-  display: flex; align-items: center;
 }
-/* side by side, every name band is two lines tall so the texts below line up */
-@media (min-width: 640px) { .card__name { min-height: calc(2.2em + 22px + 2 * var(--line)); } }
+.card__name { font-size: clamp(1.5rem, 2.3vw, 1.7rem); line-height: 1.1; text-wrap: balance; }
+.card__flavor { font-size: 0.9rem; font-weight: 700; line-height: 1.3; text-wrap: balance; }
+/* side by side, the bands are equally tall so the texts below line up */
+@media (min-width: 640px) { .card__head { min-height: 7.4rem; } }
 
 .card__body { display: flex; flex-direction: column; gap: 12px; padding: 16px 18px 6px; flex: 1; }
 .card__text { font-size: 1.02rem; }
-.card__sort { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; font-weight: 700; margin-top: auto; }
-.card__sort span {
-  padding: 0 9px; border-radius: 999px; background: var(--butter);
-  font-size: 0.82rem; font-weight: 700; line-height: 1.6;
-}
 .card__fact { font-size: 0.92rem; color: var(--choc-soft); }
 
 .card__buy { display: flex; flex-direction: column; gap: 10px; padding: 10px 18px 14px; }
@@ -295,6 +305,35 @@ main:focus-visible, section:focus-visible, .card:focus-visible, h2:focus-visible
   background: var(--paper); border: 3px dashed var(--choc); margin-bottom: 8px;
 }
 .card--resting .card__art img { opacity: 0.55; }
+
+/* Screens that are wide but not tall (most laptops): the picture moves to the
+   left of the text, two cards side by side, so a whole card - picture, text
+   and button - fits on the screen at once. */
+@media (min-width: 900px) and (max-height: 900px) {
+  .top__logo img { height: 52px; }
+  .cookies { padding-top: 34px; }
+  .cookies h2 { font-size: 2.2rem; }
+  .section-lead { font-size: 1.05rem; }
+  .grid { grid-template-columns: repeat(2, 1fr); margin-top: 22px; gap: 26px 24px; }
+  .card {
+    display: grid; grid-template-columns: minmax(150px, 33%) minmax(0, 1fr);
+    grid-template-rows: auto 1fr auto;
+  }
+  .card__art { grid-column: 1; grid-row: 1 / -1; aspect-ratio: auto; border-right: var(--line) solid var(--choc); }
+  .card__art img { inset: 12px; width: calc(100% - 24px); height: calc(100% - 24px); }
+  .card__head { grid-column: 2; min-height: 0; padding: 9px 16px 10px; border-top: 0; }
+  .card__name { font-size: 1.5rem; }
+  .card__body { grid-column: 2; gap: 8px; padding: 12px 16px 2px; }
+  .card__text { font-size: 0.97rem; line-height: 1.5; }
+  .card__buy {
+    grid-column: 2; display: grid; grid-template-columns: auto minmax(0, 1fr);
+    align-items: center; gap: 2px 16px; padding: 8px 16px 8px;
+  }
+  .card__add { min-height: 44px; padding: 6px 12px; font-size: 1.05rem; }
+  .card__incart, .card__state { grid-column: 1 / -1; }
+  .card__incart { text-align: right; }
+  .card__state { margin-bottom: 0; }
+}
 
 .notice {
   margin-top: 24px; padding: 14px 18px; background: var(--white);
@@ -404,7 +443,13 @@ dialog::backdrop { background: rgba(58, 29, 18, 0.62); }
 .totals__sum { font-family: var(--font-display); font-size: 1.5rem; line-height: 1.25; }
 .totals__sum dt { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
 .totals__sum .tag { font-family: var(--font-body); }
+.totals__deal { color: #23520F; font-weight: 700; }
+.totals__hint {
+  margin-top: 8px; padding: 6px 12px; border-radius: 12px;
+  background: var(--butter); font-size: 0.92rem; font-weight: 700; line-height: 1.35;
+}
 .totals__note { margin-top: 6px; font-size: 0.9rem; color: var(--choc-soft); }
+.modal__note { font-size: 0.95rem; color: var(--choc-soft); }
 
 .modal {
   width: min(600px, calc(100% - 24px)); max-height: calc(100% - 24px);

@@ -69,7 +69,7 @@ cannot be ordered.
 In the cart the customer taps «Bestellung erstellen», then enters their name,
 picks pick-up (free) or delivery within Lufingen (adds `deliveryFee`, and
 asks for the address) and
-how to be contacted: SMS, WhatsApp (mobile number) or e-mail. «Bestellung
+how to be contacted: WhatsApp (mobile number) or e-mail. «Bestellung
 senden» e-mails the order to `order.email` straight away. That e-mail is the
 order.
 
@@ -77,6 +77,10 @@ The e-mail is sent by the free form service FormSubmit (formsubmit.co),
 because a static site cannot send e-mail itself. The very first order makes
 FormSubmit send an activation e-mail to `order.email`; click the link in it
 once. Orders only arrive after that.
+
+Discount: with `freeEvery: 5` in `js/katalog.js` every 5th cookie of an order
+is free (pay 4, get 5). The cart, the order summary and the order e-mail show
+it. Set it to `null` to switch it off.
 
 The cart is saved in the visitor's own browser and survives a page reload.
 It is emptied after an order has been sent.
