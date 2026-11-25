@@ -640,10 +640,17 @@
     }
 
     var button = $("bestellung-senden");
-    function failed() {
+    function failed(err) {
       sending = false;
       button.disabled = false;
       button.textContent = "Bestellung senden";
+      if (err && err.message === "locked") {
+        // FormSubmit has not been activated yet: the shop must click the
+        // link in the activation e-mail once.
+        setStatus("error", "Das Bestellformular ist noch nicht freigeschaltet. Deine Bestellung ist noch NICHT bei uns. " +
+          "Bitte schreib uns an " + ORDER.email + ".");
+        return;
+      }
       setStatus("error", "Das Senden hat nicht geklappt. Deine Bestellung ist noch NICHT bei uns. " +
         "Bitte versuch es nochmals oder schreib uns an " + ORDER.email + ".");
     }
@@ -658,7 +665,9 @@
       body: JSON.stringify(buildOrderMail(who))
     }).then(function (response) {
       return response.json().then(function (answer) {
-        if (!response.ok || String(answer && answer.success) !== "true") throw new Error("not sent");
+        if (response.ok && String(answer && answer.success) === "true") return;
+        var locked = /activat/i.test(String(answer && answer.message));
+        throw new Error(locked ? "locked" : "not sent");
       });
     }).then(function () {
       sending = false;
