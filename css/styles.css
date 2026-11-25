@@ -175,7 +175,7 @@ main:focus-visible, section:focus-visible, .card:focus-visible, h2:focus-visible
 /* ---------- hero ---------- */
 
 .hero { background: var(--mustard); border-bottom: var(--line) solid var(--choc); overflow: hidden; }
-/* the group picture; on wide screens the headline sits on its free corner */
+/* the group picture; on wide screens the headline sits on the free cobblestones */
 .hero__stage {
   position: relative; max-width: 1760px; margin: 0 auto;
   display: flex; flex-direction: column;
@@ -213,18 +213,18 @@ main:focus-visible, section:focus-visible, .card:focus-visible, h2:focus-visible
 @media (min-width: 1280px) {
   .hero__scene { border-top: 0; }
   .hero__text {
-    position: absolute; left: 44.5%; top: 1.6%; width: 22%;
+    position: absolute; left: 50.3%; top: 58%; width: 17%;
     padding: 0; gap: 0.9vw; gap: 0.9cqw;
   }
   /* slightly see-through, like frosted glass, so the labels sit softly on the picture */
-  .hero__title { font-size: min(2.56vw, 45px); font-size: 2.56cqw; }
+  .hero__title { font-size: min(2.35vw, 41px); font-size: 2.35cqw; }
   .hero__title span {
     background: rgba(255, 255, 255, 0.6);
     -webkit-backdrop-filter: blur(8px) saturate(1.15); backdrop-filter: blur(8px) saturate(1.15);
     border: 3px solid rgba(58, 29, 18, 0.9);
     box-shadow: 5px 6px 0 rgba(58, 29, 18, 0.32);
   }
-  /* no room for the intro line in the sky: it stays for screen readers only */
+  /* no room for the intro line on the picture: it stays for screen readers only */
   .hero__lead {
     position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
   }
@@ -404,6 +404,7 @@ dialog::backdrop { background: rgba(58, 29, 18, 0.62); }
 .totals__sum { font-family: var(--font-display); font-size: 1.5rem; line-height: 1.25; }
 .totals__sum dt { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
 .totals__sum .tag { font-family: var(--font-body); }
+.totals__note { margin-top: 6px; font-size: 0.9rem; color: var(--choc-soft); }
 
 .modal {
   width: min(600px, calc(100% - 24px)); max-height: calc(100% - 24px);

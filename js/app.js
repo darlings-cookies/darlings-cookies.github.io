@@ -15,6 +15,7 @@
   var TEST = SHOP.testMode !== false;
   var CURRENCY = SHOP.currency || "CHF";
   var MAX = Number.isInteger(SHOP.maxPerCookie) && SHOP.maxPerCookie > 0 ? SHOP.maxPerCookie : 99;
+  var DELIVERY_FEE = typeof SHOP.deliveryFee === "number" && SHOP.deliveryFee > 0 ? Math.round(SHOP.deliveryFee * 100) : 0;
   var STORAGE_KEY = "darlings-warenkorb-v1";
   var TILTS = [-1.1, 0.9, -0.7, 1.2, -0.9, 0.6];
 
@@ -204,7 +205,8 @@
         el("div", { class: "card__body" }, [
           TEST && cookie.draft ? el("p", { class: "tag tag--draft", text: "Textentwurf" }) : null,
           el("p", { class: "card__text", text: cookie.description || "" }),
-          cookie.variety ? el("p", { class: "card__sort" }, [el("span", { text: "Sorte" }), cookie.variety]) : null
+          cookie.flavor || cookie.variety
+            ? el("p", { class: "card__sort" }, [el("span", { text: "Geschmack" }), cookie.flavor || cookie.variety]) : null
         ].concat(details)),
         buy
       ]));
@@ -473,6 +475,8 @@
         el("dd", { id: "warenkorb-total", text: money(cartTotal()) })
       ])
     ]));
+    foot.appendChild(el("p", { class: "totals__note",
+      text: "Abholung gratis. Lieferung innerhalb von Lufingen" + (DELIVERY_FEE ? " + " + money(DELIVERY_FEE) + "." : " gratis.") }));
     foot.appendChild(el("div", { class: "drawer__actions" }, [
       el("button", { class: "btn btn--big", type: "button", id: "bestellung-erstellen" }, ["Bestellung erstellen"]),
       el("button", { class: "linkbtn", type: "button", id: "warenkorb-leeren" }, ["Warenkorb leeren"])
@@ -494,7 +498,10 @@
   var SEND_URL = "https://formsubmit.co/ajax/";
   var sending = false;
 
-  function buildOrderText() {
+  /* Delivery charge in Rappen for the chosen way of receiving the cookies. */
+  function feeFor(delivery) { return delivery ? DELIVERY_FEE : 0; }
+
+  function buildOrderText(delivery) {
     var lines = cartLines();
     var count = cartCount();
     var out = [];
@@ -504,7 +511,9 @@
         (line.cookie.variety ? " (" + line.cookie.variety + ")" : "") +
         " à " + money(line.unit) + " = " + money(line.sum));
     });
-    out.push("", "Anzahl Cookies: " + count, "Total: " + money(cartTotal()));
+    out.push("", "Anzahl Cookies: " + count);
+    if (delivery && DELIVERY_FEE) out.push("Lieferung in Lufingen: " + money(DELIVERY_FEE));
+    out.push("Total: " + money(cartTotal() + feeFor(delivery)));
     return out.join("\n");
   }
 
@@ -517,6 +526,10 @@
      that fits the chosen way of getting in touch. */
   function syncOrderFields() {
     var contact = picked("kontakt");
+    var area = $("bestellung-text");
+    area.value = buildOrderText(picked("erhalt") === "lieferung");
+    area.style.height = "auto";
+    area.style.height = (area.scrollHeight + 8) + "px";
     $("b-adresse-feld").hidden = picked("erhalt") !== "lieferung";
     $("b-telefon-feld").hidden = !(contact === "sms" || contact === "whatsapp");
     $("b-email-feld").hidden = contact !== "email";
@@ -579,6 +592,7 @@
     }
     return {
       name: name,
+      delivery: how === "lieferung",
       how: how === "lieferung" ? "Lieferung innerhalb von Lufingen" : "Abholung",
       address: how === "lieferung" ? address : "",
       contactLabel: contact === "sms" ? "SMS" : contact === "whatsapp" ? "WhatsApp" : "E-Mail",
@@ -606,7 +620,8 @@
         line.qty + " Stück à " + money(line.unit) + " = " + money(line.sum);
     });
     mail["Anzahl Cookies"] = String(cartCount());
-    mail["Total"] = money(cartTotal());
+    if (who.delivery && DELIVERY_FEE) mail["Lieferung"] = money(DELIVERY_FEE);
+    mail["Total"] = money(cartTotal() + feeFor(who.delivery));
     [FULFILMENT.pickup, FULFILMENT.delivery, SHOP.payment, ORDER.note].filter(Boolean).forEach(function (t, i) {
       mail["Hinweis " + (i + 1)] = t;
     });
@@ -671,9 +686,9 @@
 
   function openOrder() {
     if (!cartCount()) return;
-    var text = buildOrderText();
     var area = $("bestellung-text");
-    area.value = text;
+    $("b-abholung-preis").textContent = " (gratis)";
+    $("b-lieferung-preis").textContent = DELIVERY_FEE ? " (+ " + money(DELIVERY_FEE) + ")" : " (gratis)";
     setStatus("", "");
     $("bestellung-testhinweis").hidden = !TEST;
     $("bestellung-formular").hidden = false;
@@ -692,9 +707,7 @@
 
     $("warenkorb").close();
     $("bestellung").showModal();
-    // show the whole order at once; the pop-up itself scrolls
-    area.style.height = "auto";
-    area.style.height = (area.scrollHeight + 8) + "px";
+    syncOrderFields();   // again now that the pop-up is visible, so the order box gets its full height
     area.scrollTop = 0;
     $("bestellung-titel").focus();
   }

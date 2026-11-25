@@ -67,7 +67,8 @@ cannot be ordered.
 ## How ordering works
 
 In the cart the customer taps «Bestellung erstellen», then enters their name,
-picks pick-up or delivery within Lufingen (delivery asks for the address) and
+picks pick-up (free) or delivery within Lufingen (adds `deliveryFee`, and
+asks for the address) and
 how to be contacted: SMS, WhatsApp (mobile number) or e-mail. «Bestellung
 senden» e-mails the order to `order.email` straight away. That e-mail is the
 order.
