@@ -256,7 +256,7 @@
       // Ingredients and allergens open as a sheet over the description, so nothing on the page moves.
       var facts = [];
       if (cookie.ingredients) facts.push(el("p", { class: "card__fact" }, [el("strong", { text: "Zutaten: " }), String(cookie.ingredients)]));
-      if (cookie.allergens) facts.push(el("p", { class: "card__fact" }, [el("strong", { text: "Allergene: " }), String(cookie.allergens)]));
+      if (cookie.allergens) facts.push(el("p", { class: "card__fact card__fact--strong" }, [el("strong", { text: "Allergene: " }), String(cookie.allergens)]));
       var sheetId = "infos-" + cookie.id;
       var isOpen = openFacts[cookie.id] === true;
       var details = facts.length ? [

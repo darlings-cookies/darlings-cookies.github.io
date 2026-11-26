@@ -305,6 +305,7 @@ main:focus-visible, section:focus-visible, .card:focus-visible, h2:focus-visible
 .card__sheet[hidden] { display: none; }
 .card__sheetclose { align-self: flex-end; padding: 2px 0; font-size: 0.9rem; font-weight: 700; }
 .card__sheet .card__fact { color: var(--choc); }
+.card__fact--strong { font-weight: 700; }
 
 /* a character that is not introduced yet */
 .card--locked { background: var(--butter); }
