@@ -313,10 +313,6 @@
 
   /* ---------- cookie run: from the card into the cart ---------- */
 
-  function calmMotion() {
-    return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  }
-
   function lerp(a, b, t) { return a + (b - a) * t; }
   function easeInOut(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
 
@@ -376,10 +372,10 @@
 
   /* The cookie turns its back, runs off into the distance towards the cart
      and cannonballs into the counter. Returns false if there is no run
-     (the visitor's device asks for reduced motion): the counter then updates
+     (the page is in a background tab, or the picture has not loaded): the counter then updates
      straight away. */
   function sendCookieRunning(img, cookie, button) {
-    if (!img || !img.naturalWidth || calmMotion() || document.hidden || !window.requestAnimationFrame) return false;
+    if (!img || !img.naturalWidth || document.hidden || !window.requestAnimationFrame) return false;
     var from = img.getBoundingClientRect();
     if (!from.width || !from.height) return false;
 
@@ -1001,7 +997,7 @@
       $("aktion").hidden = false;
     }
     renderUpdated();
-    if (!calmMotion()) loadRunFrames();
+    loadRunFrames();
     renderAll();
     bindEvents();
   }
