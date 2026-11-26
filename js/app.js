@@ -64,8 +64,11 @@
     return null;
   }
 
+  /* Not introduced yet: shown as a black «???» silhouette. */
+  function isLocked(cookie) { return cookie.locked === true; }
+
   function canOrder(cookie) {
-    return cookie.available !== false && priceOf(cookie) !== null;
+    return !isLocked(cookie) && cookie.available !== false && priceOf(cookie) !== null;
   }
 
   function money(rappen) {
@@ -184,6 +187,36 @@
 
   /* ---------- character cards ---------- */
 
+  var openFacts = {};       // { cookieId: true } while its «Zutaten und Allergene» is unfolded
+
+  /* A character that is not introduced yet: only its shadow, no name, no text. */
+  function lockedCard(cookie, i) {
+    var titleId = "name-geheim-" + i;
+    var shaded = !cookie.lockedImage;     // no silhouette picture: black out the normal one
+    return el("article", {
+      class: "card card--locked",
+      id: "cookie-geheim-" + i,
+      tabindex: "-1",
+      "aria-labelledby": titleId,
+      style: "--accent:#4A2A1C;--accent-ink:#FFF6E1;--tilt:" + TILTS[i % TILTS.length] + "deg"
+    }, [
+      el("div", { class: "card__art" }, [
+        el("img", { class: shaded ? "is-shaded" : null, src: cookie.lockedImage || cookie.image,
+          alt: "Ein noch geheimer DARLING, nur als schwarzer Schatten zu sehen.", loading: "lazy" })
+      ]),
+      el("div", { class: "card__head" }, [
+        el("h3", { class: "card__name", id: titleId, text: "???" }),
+        el("p", { class: "card__flavor", text: "Noch geheim" })
+      ]),
+      el("div", { class: "card__body" }, [
+        el("p", { class: "card__text", text: "Wer das wohl ist? Dieser DARLING ist noch nicht freigeschaltet. Bald lernst du ihn kennen." })
+      ]),
+      el("div", { class: "card__buy" }, [
+        el("p", { class: "card__state", text: "Bald verfügbar" })
+      ])
+    ]);
+  }
+
   function renderCards() {
     var grid = $("karten");
     grid.textContent = "";
@@ -192,6 +225,7 @@
       return;
     }
     CATALOGUE.forEach(function (cookie, i) {
+      if (isLocked(cookie)) { grid.appendChild(lockedCard(cookie, i)); return; }
       var price = priceOf(cookie);
       var orderable = canOrder(cookie);
       var inCart = cart[cookie.id] || 0;
@@ -219,9 +253,12 @@
         }));
       }
 
-      var details = [];
-      if (cookie.ingredients) details.push(el("p", { class: "card__fact" }, [el("strong", { text: "Zutaten: " }), String(cookie.ingredients)]));
-      if (cookie.allergens) details.push(el("p", { class: "card__fact" }, [el("strong", { text: "Allergene: " }), String(cookie.allergens)]));
+      // ingredients and allergens fold away, so the card stays short
+      var facts = [];
+      if (cookie.ingredients) facts.push(el("p", { class: "card__fact" }, [el("strong", { text: "Zutaten: " }), String(cookie.ingredients)]));
+      if (cookie.allergens) facts.push(el("p", { class: "card__fact" }, [el("strong", { text: "Allergene: " }), String(cookie.allergens)]));
+      var details = facts.length ? [el("details", { class: "card__more", "data-facts": cookie.id, open: openFacts[cookie.id] === true },
+        [el("summary", { text: "Zutaten und Allergene" })].concat(facts))] : [];
 
       grid.appendChild(el("article", {
         class: "card" + (orderable ? "" : " card--resting"),
@@ -310,6 +347,7 @@
   var runSets = {};
   function loadRunFrames() {
     CATALOGUE.forEach(function (cookie) {
+      if (isLocked(cookie)) return;
       var runs = Number(cookie.runFrames);
       var turns = Number(cookie.turnFrames);
       if (!Number.isInteger(runs) || runs < 2) return;
@@ -862,6 +900,12 @@
       event.preventDefault();
       sendOrder();
     });
+
+    // Remember which «Zutaten und Allergene» are unfolded: the cards are rebuilt after every cart change.
+    document.addEventListener("toggle", function (event) {
+      var box = event.target;
+      if (box && box.getAttribute && box.getAttribute("data-facts")) openFacts[box.getAttribute("data-facts")] = box.open;
+    }, true);
 
     // Typing a quantity directly.
     document.addEventListener("change", function (event) {

@@ -62,6 +62,12 @@ window.DARLINGS_SHOP = {
    image        path to the illustration (png, jpg or webp, any shape)
    imageAlt     one sentence describing the picture, for screen readers
    description  the personality text on the card
+   locked       true = the character is not introduced yet. The page shows
+                only a black silhouette called «???», it cannot be ordered,
+                and its name, text and picture stay hidden. Set to false
+                to unlock it (see tools/lock-characters.py for the
+                silhouette in the header picture).
+   lockedImage  the black silhouette picture used while locked
    draft        true = text still waiting for approval (a small
                 «Textentwurf» tag is shown in test mode only)
    variety      the cookie variety in a few words (used in the cart and the order)
@@ -94,8 +100,8 @@ window.DARLINGS_CATALOGUE = [
     accent: "#F2B632",
     turnFrames: 3,
     runFrames: 6,
-    ingredients: "folgt",
-    allergens: "folgt"
+    ingredients: "Weizenmehl, Butter, Milchschokolade, Rohzucker, Zucker, Eier, Backpulver, Vanilleextrakt, Salz",
+    allergens: "Weizen (Gluten), Eier, Milch"
   },
   {
     id: "biscoff-break",
@@ -111,8 +117,8 @@ window.DARLINGS_CATALOGUE = [
     accent: "#7FB3D3",
     turnFrames: 3,
     runFrames: 6,
-    ingredients: "folgt",
-    allergens: "folgt"
+    ingredients: "Weizenmehl, Butter, weisse Schokolade, Rohzucker, Biscoff-Creme, Eier, Zucker, Biscoff-Kekse, Zimt, Maisstärke, Natron, Vanilleextrakt, Salz",
+    allergens: "Weizen (Gluten), Eier, Milch, Soja"
   },
   {
     id: "dough-vinci",
@@ -128,8 +134,8 @@ window.DARLINGS_CATALOGUE = [
     accent: "#EE5C8F",
     turnFrames: 3,
     runFrames: 6,
-    ingredients: "folgt",
-    allergens: "folgt"
+    ingredients: "Weizenmehl, Butter, Rohzucker, Oreo-Kekse, Zucker, weisse Schokolade, Eier, Maisstärke, Natron, Vanilleextrakt, Lebensmittelfarbe, Salz",
+    allergens: "Weizen (Gluten), Eier, Milch, Soja"
   },
   {
     id: "choc-noir",
@@ -145,8 +151,8 @@ window.DARLINGS_CATALOGUE = [
     accent: "#C8392D",
     turnFrames: 3,
     runFrames: 6,
-    ingredients: "folgt",
-    allergens: "folgt"
+    ingredients: "Weizenmehl, Butter, weisse Schokolade und Milchschokolade, Rohzucker, Zucker, Eier, Kakaopulver, Backpulver, Vanilleextrakt, Salz",
+    allergens: "Weizen (Gluten), Eier, Milch"
   },
   {
     id: "the-sweetheart",
@@ -162,8 +168,8 @@ window.DARLINGS_CATALOGUE = [
     accent: "#F29CA3",
     turnFrames: 3,
     runFrames: 6,
-    ingredients: "folgt",
-    allergens: "folgt"
+    ingredients: "Weizenmehl, Zucker (zum Teil als Karamell), dunkle Schokolade, Butter, Muscovadozucker, Eier, brauner Zucker, Vanilleextrakt, Backpulver, Natron, Salz, Meersalzflocken",
+    allergens: "Weizen (Gluten), Eier, Milch"
   },
   {
     id: "charming-churro",
@@ -179,11 +185,13 @@ window.DARLINGS_CATALOGUE = [
     accent: "#C97B3A",
     turnFrames: 3,
     runFrames: 6,
-    ingredients: "folgt",
-    allergens: "folgt"
+    ingredients: "Weizenmehl, Butter, brauner Zucker, Eier, Zucker, Cini Minis Churros (Zimt-Cerealien), Zimt, Vanilleextrakt, Natron, Backpulver, Salz",
+    allergens: "Weizen (Gluten), Eier, Milch"
   },
   {
     id: "sunday-in-sicily",
+    locked: true,                 // not introduced yet: shown as a black «???» silhouette
+    lockedImage: "images/sunday-in-sicily-geheim.webp",
     name: "Sunday in Sicily",
     image: "images/sunday-in-sicily.webp",
     imageAlt: "Sunday in Sicily: ein grüner Pistazien-Cookie im weissen Hemd, die Sonnenbrille auf dem Kopf und eine Espressotasse in der Hand.",
@@ -201,6 +209,8 @@ window.DARLINGS_CATALOGUE = [
   },
   {
     id: "chunky-monkey",
+    locked: true,                 // not introduced yet: shown as a black «???» silhouette
+    lockedImage: "images/chunky-monkey-geheim.webp",
     name: "Chunky Monkey",
     image: "images/chunky-monkey.webp",
     imageAlt: "Chunky Monkey: ein muskulöser Erdnussbutter-Cookie mit Schokoladenstücken, gestreiftem Stirnband und Schweissbändern, der lachend den Daumen hochhält.",

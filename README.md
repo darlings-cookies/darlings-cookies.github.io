@@ -45,6 +45,14 @@ Open `js/katalog.js`. Each character is one block:
    without spaces, and fill in the rest.
 3. Save. The card, the cart and the order text pick it up on their own.
 
+## Locked characters
+
+A character with `locked: true` in `js/katalog.js` is not introduced yet: the
+page shows a black silhouette called «???» and it cannot be ordered. The black
+figures in the header picture and the silhouette card pictures are made by
+`tools/lock-characters.py` (the list `LOCKED` at its top). To unlock one, take
+it out of that list, run the script, and set `locked: false`.
+
 ## Test mode and going live
 
 `testMode: true` in `js/katalog.js` means:
