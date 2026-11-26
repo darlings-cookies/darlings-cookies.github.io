@@ -961,26 +961,6 @@
     });
   }
 
-  /* ---------- "last updated" in the footer ---------- */
-
-  /* The browser knows when the server last changed this page. On GitHub Pages
-     that is the moment the site was published, so nothing has to be typed in. */
-  function renderUpdated() {
-    var when = new Date(document.lastModified);
-    if (isNaN(when.getTime())) return;
-    var text;
-    try {
-      text = when.toLocaleString("de-CH", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }) + " Uhr";
-    } catch (err) {
-      text = when.toLocaleString();
-    }
-    var time = $("fuss-stand-zeit");
-    if (!time || !$("fuss-stand")) return;   // an older copy of the page from the browser cache
-    time.textContent = text;
-    time.setAttribute("datetime", when.toISOString());
-    $("fuss-stand").hidden = false;
-  }
-
   /* ---------- start ---------- */
 
   function start() {
@@ -996,7 +976,6 @@
       $("aktion").textContent = "Jeder " + FREE_EVERY + ". Cookie ist gratis: " + (FREE_EVERY - 1) + " bezahlen, " + FREE_EVERY + " bekommen.";
       $("aktion").hidden = false;
     }
-    renderUpdated();
     loadRunFrames();
     renderAll();
     bindEvents();
