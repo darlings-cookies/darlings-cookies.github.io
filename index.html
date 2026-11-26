@@ -145,6 +145,15 @@
         <p class="error" id="b-adresse-fehler" hidden></p>
       </div>
 
+      <fieldset class="field" id="b-termin">
+        <legend>Wunschtermin (freiwillig)</legend>
+        <div class="field__row">
+          <label class="field__part" for="b-datum"><span>Datum</span><input id="b-datum" type="date"></label>
+          <label class="field__part" for="b-zeit"><span>Uhrzeit</span><input id="b-zeit" type="time" step="900"></label>
+        </div>
+        <p class="field__hint">Wir versuchen, deinen Wunschtermin möglich zu machen. Den genauen Termin bestätigen wir dir mit der Bestellbestätigung.</p>
+      </fieldset>
+
       <fieldset class="field" id="b-kontakt">
         <legend>Wie sollen wir uns bei dir melden?</legend>
         <label class="choice"><input type="radio" name="kontakt" value="whatsapp"> WhatsApp</label>
@@ -162,6 +171,11 @@
         <label for="b-email">Deine E-Mail-Adresse</label>
         <input id="b-email" type="email" inputmode="email" autocomplete="email" maxlength="120">
         <p class="error" id="b-email-fehler" hidden></p>
+      </div>
+
+      <div class="field">
+        <label for="b-bemerkung">Bemerkungen (freiwillig)</label>
+        <textarea id="b-bemerkung" rows="3" maxlength="800" placeholder="Fragen, besondere Wünsche oder Anfragen"></textarea>
       </div>
 
       <!-- Falle für Spam-Programme: Menschen sehen dieses Feld nicht. -->

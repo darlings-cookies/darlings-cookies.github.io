@@ -187,7 +187,7 @@
 
   /* ---------- character cards ---------- */
 
-  var openFacts = {};       // { cookieId: true } while its «Zutaten und Allergene» is unfolded
+  var openFacts = {};       // { cookieId: true } while its «Zutaten und Allergene» sheet is open
 
   /* A character that is not introduced yet: only its shadow, no name, no text. */
   function lockedCard(cookie, i) {
@@ -253,12 +253,20 @@
         }));
       }
 
-      // ingredients and allergens fold away, so the card stays short
+      // Ingredients and allergens open as a sheet over the description, so nothing on the page moves.
       var facts = [];
       if (cookie.ingredients) facts.push(el("p", { class: "card__fact" }, [el("strong", { text: "Zutaten: " }), String(cookie.ingredients)]));
       if (cookie.allergens) facts.push(el("p", { class: "card__fact" }, [el("strong", { text: "Allergene: " }), String(cookie.allergens)]));
-      var details = facts.length ? [el("details", { class: "card__more", "data-facts": cookie.id, open: openFacts[cookie.id] === true },
-        [el("summary", { text: "Zutaten und Allergene" })].concat(facts))] : [];
+      var sheetId = "infos-" + cookie.id;
+      var isOpen = openFacts[cookie.id] === true;
+      var details = facts.length ? [
+        el("button", { class: "linkbtn card__morebtn", type: "button", "data-facts": cookie.id,
+          "aria-expanded": isOpen ? "true" : "false", "aria-controls": sheetId }, ["Zutaten und Allergene"]),
+        el("div", { class: "card__sheet", id: sheetId, hidden: !isOpen }, [
+          el("button", { class: "linkbtn card__sheetclose", type: "button", "data-facts": cookie.id,
+            "aria-label": "Zutaten und Allergene von " + cookie.name + " schliessen" }, ["Schliessen ✕"])
+        ].concat(facts))
+      ] : [];
 
       grid.appendChild(el("article", {
         class: "card" + (orderable ? "" : " card--resting"),
@@ -664,6 +672,17 @@
     var phone = $("b-telefon").value.trim();
     var email = $("b-email").value.trim();
     var byPhone = contact === "whatsapp";
+    var day = $("b-datum").value;                 // "2026-12-24" or ""
+    var time = $("b-zeit").value;                 // "14:30" or ""
+    var wish = "";
+    if (day) {
+      var parts = day.split("-");
+      var date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      try { wish = date.toLocaleDateString("de-CH", { weekday: "long", day: "numeric", month: "long", year: "numeric" }); }
+      catch (err) { wish = day; }
+    }
+    if (time) wish += (wish ? ", " : "") + time + " Uhr";
+    var comment = $("b-bemerkung").value.trim();
     var firstBad = null;
 
     function check(id, message, focusTarget) {
@@ -694,7 +713,9 @@
       address: how === "lieferung" ? address : "",
       contactLabel: contact === "whatsapp" ? "WhatsApp" : "E-Mail",
       contactValue: byPhone ? phone : email,
-      email: contact === "email" ? email : ""
+      email: contact === "email" ? email : "",
+      wish: wish,
+      comment: comment
     };
   }
 
@@ -710,8 +731,10 @@
     mail["Name"] = who.name;
     mail["Erhalt"] = who.how;
     if (who.address) mail["Lieferadresse"] = who.address;
+    if (who.wish) mail["Wunschtermin"] = who.wish;
     mail["Kontakt per"] = who.contactLabel;
     mail[who.email ? "E-Mail-Adresse" : "Handynummer"] = who.contactValue;
+    if (who.comment) mail["Bemerkung"] = who.comment;
     cartLines().forEach(function (line) {
       mail[line.cookie.name + (line.cookie.variety ? " (" + line.cookie.variety + ")" : "")] =
         line.qty + " Stück à " + money(line.unit) + " = " + money(line.sum);
@@ -788,6 +811,8 @@
     if (!cartCount()) return;
     var area = $("bestellung-text");
     $("b-abholung-preis").textContent = " (gratis)";
+    var now = new Date();                           // no wish dates in the past
+    $("b-datum").min = now.getFullYear() + "-" + ("0" + (now.getMonth() + 1)).slice(-2) + "-" + ("0" + now.getDate()).slice(-2);
     $("b-lieferung-preis").textContent = DELIVERY_FEE ? " (+ " + money(DELIVERY_FEE) + ")" : " (gratis)";
     setStatus("", "");
     $("bestellung-testhinweis").hidden = !TEST;
@@ -869,6 +894,19 @@
         return;
       }
 
+      var factsBtn = t.closest("[data-facts]");
+      if (factsBtn) {
+        var factsId = factsBtn.getAttribute("data-facts");
+        var sheet = $("infos-" + factsId);
+        var opener = document.querySelector('.card__morebtn[data-facts="' + factsId + '"]');
+        if (!sheet || !opener) return;
+        openFacts[factsId] = sheet.hidden;          // open it if it was closed, and the other way round
+        sheet.hidden = !openFacts[factsId];
+        opener.setAttribute("aria-expanded", openFacts[factsId] ? "true" : "false");
+        (openFacts[factsId] ? sheet.querySelector(".card__sheetclose") : opener).focus({ preventScroll: true });
+        return;
+      }
+
       var remove = t.closest("[data-remove]");
       if (remove) {
         var removeId = remove.getAttribute("data-remove");
@@ -900,12 +938,6 @@
       event.preventDefault();
       sendOrder();
     });
-
-    // Remember which «Zutaten und Allergene» are unfolded: the cards are rebuilt after every cart change.
-    document.addEventListener("toggle", function (event) {
-      var box = event.target;
-      if (box && box.getAttribute && box.getAttribute("data-facts")) openFacts[box.getAttribute("data-facts")] = box.open;
-    }, true);
 
     // Typing a quantity directly.
     document.addEventListener("change", function (event) {

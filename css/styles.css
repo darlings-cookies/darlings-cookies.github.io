@@ -294,16 +294,17 @@ main:focus-visible, section:focus-visible, .card:focus-visible, h2:focus-visible
 .card__body { display: flex; flex-direction: column; gap: 12px; padding: 16px 18px 6px; flex: 1; }
 .card__text { font-size: 1.02rem; }
 .card__fact { font-size: 0.92rem; color: var(--choc-soft); }
-/* ingredients and allergens, folded away until asked for */
-.card__more { margin-top: auto; font-size: 0.92rem; }
-.card__more summary {
-  display: inline-block; padding: 4px 0; cursor: pointer; list-style: none;
-  font-weight: 700; text-decoration: underline; text-underline-offset: 3px;
+/* ingredients and allergens: a sheet that lies over the description, so nothing moves */
+.card__body { position: relative; }
+.card__morebtn { align-self: flex-start; margin-top: auto; padding: 4px 0; font-size: 0.92rem; font-weight: 700; }
+.card__sheet {
+  position: absolute; inset: 0; z-index: 1; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 6px; padding: 10px 16px 10px;
+  background: var(--butter);
 }
-.card__more summary::-webkit-details-marker { display: none; }
-.card__more summary::after { content: " +"; }
-.card__more[open] summary::after { content: " −"; }
-.card__more .card__fact { margin-top: 4px; }
+.card__sheet[hidden] { display: none; }
+.card__sheetclose { align-self: flex-end; padding: 2px 0; font-size: 0.9rem; font-weight: 700; }
+.card__sheet .card__fact { color: var(--choc); }
 
 /* a character that is not introduced yet */
 .card--locked { background: var(--butter); }
@@ -513,6 +514,13 @@ dialog::backdrop { background: rgba(58, 29, 18, 0.62); }
 }
 .choice:has(input:checked) { background: var(--butter); }
 .choice input { width: 22px; height: 22px; flex: none; margin: 0; accent-color: var(--choc); }
+.field input[type="date"], .field input[type="time"] {
+  width: 100%; min-height: 48px; padding: 8px 12px;
+  background: var(--white); border: 3px solid var(--choc); border-radius: 14px; font-size: 1rem;
+}
+.field__row { display: flex; flex-wrap: wrap; gap: 10px; }
+.field__part { flex: 1 1 150px; display: flex; flex-direction: column; gap: 4px; font-size: 0.92rem; font-weight: 700; }
+.field__hint { font-size: 0.92rem; color: var(--choc-soft); }
 .field .error { margin-top: 0; }
 .field .error[hidden] { display: none; }
 
